@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { EbookBanner } from "../components/EbookBanner";
+import { ResourceLinkList } from "../components/ResourceLinkList";
 import { getSubject, getLessonKey } from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
@@ -59,6 +60,15 @@ export function SubjectPage() {
           note="교과서 본문은 e북에서 열람 · 앱에서는 요약·퀴즈로 복습"
           color={subject.color}
           accent={subject.accent}
+        />
+      )}
+
+      {subject.resourceLinks && subject.resourceLinks.length > 0 && (
+        <ResourceLinkList
+          title="T셀파 평가 샘플"
+          hint="천재 T셀파 공식 평가 자료 · 로그인·회원 이용"
+          links={subject.resourceLinks}
+          color={subject.color}
         />
       )}
 
