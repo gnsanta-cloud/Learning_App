@@ -42,7 +42,11 @@ export function UnitQuizPage() {
       subjectAccent={subject.accent}
       backLabel={unit.title}
       backTo={unitPath}
-      badge={unitUsesSections(unit) ? "단원 퀴즈 · 20문항" : undefined}
+      badge={
+        unitUsesSections(unit)
+          ? `단원 퀴즈 · ${quizzes.length}문항`
+          : undefined
+      }
       onComplete={() => markComplete(getUnitQuizKey(subject.id, unit.id))}
       doneLinks={[
         { to: unitPath, label: "단원으로 돌아가기" },

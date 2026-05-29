@@ -1,5 +1,7 @@
 import type { ExamScopeItem, Quiz, Subject } from "../types";
-import { getUnitQuizzes } from "../lib/geminiContent";
+import { getUnitQuizzes as getUnitQuizzesFromUnit } from "../lib/geminiContent";
+
+export const getUnitQuizzes = getUnitQuizzesFromUnit;
 import { ethicsSubject } from "./ethics/index";
 import { techHomeSubject } from "./techHome/index";
 
@@ -77,11 +79,17 @@ export function countLessons(subject: Subject): number {
 }
 
 export function countQuizzes(subject: Subject): number {
-  return subject.units.reduce((n, u) => n + getUnitQuizzes(u).length, 0);
+  return subject.units.reduce((n, u) => n + getUnitQuizzesFromUnit(u).length, 0);
 }
 
 export function getAllQuizzes(subject: Subject): Quiz[] {
-  return subject.units.flatMap((u) => getUnitQuizzes(u));
+  return subject.units.flatMap((u) => getUnitQuizzesFromUnit(u));
+}
+
+/** 기술·가정: 단원당 20문항 고정, 도덕: 실제 문항 수 */
+export function getUnitQuizLabel(unit: Subject["units"][number]): string {
+  const n = getUnitQuizzesFromUnit(unit).length;
+  return `단원 퀴즈 ${n}문항`;
 }
 
 export function getExamScope(subject: Subject): ExamScopeItem[] {

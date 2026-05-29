@@ -116,7 +116,7 @@ export function UnitStudyPage() {
             <ol className="unit-study-steps">
               <li>e북에서 교과서 내용을 읽습니다.</li>
               <li>아래 소단원별 핵심 요약을 확인합니다.</li>
-              <li>단원 퀴즈 20문항으로 기말고사를 대비합니다.</li>
+              <li>단원 퀴즈 {quizCount}문항으로 기말고사를 대비합니다.</li>
             </ol>
             <ul className="lesson-list">
               {unit.sections.map((section, index) => {

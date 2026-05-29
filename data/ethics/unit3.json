@@ -31,93 +31,543 @@
   ],
   "questions": [
     {
-      "id": "unit3-q05",
+      "id": "unit3-q01",
       "unitId": "unit3",
-      "order": 5,
-      "question": "빈칸에 들어갈 알맞은 도덕적 핵심 용어를 쓰시오.",
+      "order": 1,
+      "question": "인간이라는 이유만으로 누구나 누려야 할 천부적 권리는?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "인권"
+        },
+        {
+          "id": "b",
+          "text": "특권"
+        },
+        {
+          "id": "c",
+          "text": "관습"
+        },
+        {
+          "id": "d",
+          "text": "의무"
         }
       ],
       "correctId": "a",
-      "explanation": "인권은 천부인권으로서 인간 존엄성의 핵심 가치입니다.",
+      "explanation": "인권은 인간 존엄성의 핵심 가치입니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q02",
+      "unitId": "unit3",
+      "order": 2,
+      "question": "사회 구성원에게 합당한 몫을 공평하게 나누는 가치는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "정의"
+        },
+        {
+          "id": "b",
+          "text": "편파"
+        },
+        {
+          "id": "c",
+          "text": "차별"
+        },
+        {
+          "id": "d",
+          "text": "무질서"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "정의로운 사회는 권리를 공정하게 보장합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q03",
+      "unitId": "unit3",
+      "order": 3,
+      "question": "사이버 공간의 특징으로 옳지 않은 것은?",
+      "options": [
+        {
+          "id": "a",
+          "text": "익명성이 있다."
+        },
+        {
+          "id": "b",
+          "text": "실시간 소통이 가능하다."
+        },
+        {
+          "id": "c",
+          "text": "전파성이 높다."
+        },
+        {
+          "id": "d",
+          "text": "현실의 도덕 규칙을 지킬 필요가 없다."
+        }
+      ],
+      "correctId": "d",
+      "explanation": "비대면에서도 네티켓과 도덕 규칙이 필요합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q04",
+      "unitId": "unit3",
+      "order": 4,
+      "question": "인터넷 창작물을 보호하는 권리는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "저작권"
+        },
+        {
+          "id": "b",
+          "text": "특허권만"
+        },
+        {
+          "id": "c",
+          "text": "상표권만"
+        },
+        {
+          "id": "d",
+          "text": "재산권 없음"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "저작권을 존중하고 무단 도용하지 않아야 합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q05",
+      "unitId": "unit3",
+      "order": 5,
+      "question": "사이버 익명성 뒤에 필요한 자세는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "상대를 존중하는 책임감"
+        },
+        {
+          "id": "b",
+          "text": "무책임한 비방"
+        },
+        {
+          "id": "c",
+          "text": "허위 유포"
+        },
+        {
+          "id": "d",
+          "text": "저작권 무시"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "익명이라도 타인 존중과 책임이 필요합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q06",
+      "unitId": "unit3",
+      "order": 6,
+      "question": "사회적 약자 배려 전형이 정의에 맞는 이유는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "실질적 기회의 공정함을 보장하기 위해"
+        },
+        {
+          "id": "b",
+          "text": "강자만 유리하게 하기 위해"
+        },
+        {
+          "id": "c",
+          "text": "차별을 강화하기 위해"
+        },
+        {
+          "id": "d",
+          "text": "규칙을 없애기 위해"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "형식적 평등만으로는 불평등이 지속될 수 있습니다.",
       "tags": []
     },
     {
       "id": "unit3-q07",
       "unitId": "unit3",
       "order": 7,
-      "question": "다음 중 '사이버 공간'의 특징으로 올바르지 않은 것은?",
+      "question": "인권 침해 예로 가장 적절한 것은?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "차별·폭력·프라이버시 침해"
+        },
+        {
+          "id": "b",
+          "text": "타인 존중"
+        },
+        {
+          "id": "c",
+          "text": "공정한 제도"
+        },
+        {
+          "id": "d",
+          "text": "네티켓 준수"
         }
       ],
-      "correctId": "d",
-      "explanation": "비대면 공간일수록 타인에게 상처를 주지 않기 위한 사이버 예절(네티켓)이 더욱 요구됩니다.",
+      "correctId": "a",
+      "explanation": "인권은 국가·타인에 의해 함부로 침해되어서는 안 됩니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q08",
+      "unitId": "unit3",
+      "order": 8,
+      "question": "네티켓(Netiquette)이란?",
+      "options": [
+        {
+          "id": "a",
+          "text": "사이버 공간에서 지켜야 할 예절과 규범"
+        },
+        {
+          "id": "b",
+          "text": "해킹 기술"
+        },
+        {
+          "id": "c",
+          "text": "익명 보장만"
+        },
+        {
+          "id": "d",
+          "text": "도덕 무시"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "네티켓은 건전한 온라인 문화의 기본입니다.",
       "tags": []
     },
     {
       "id": "unit3-q09",
       "unitId": "unit3",
       "order": 9,
-      "question": "사회 구성원들에게 합당한 몫을 공평하게 나누어 주고, 억울함이 없도록 올바르게 대우하는 사회적 기준과 가치를 무엇이라고 하는가?",
+      "question": "언어폭력(사이버 폭력)의 문제점은?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "피해자에게 심각한 정서적 상처를 준다."
+        },
+        {
+          "id": "b",
+          "text": "항상 무해하다."
+        },
+        {
+          "id": "c",
+          "text": "표현의 자유만 해당"
+        },
+        {
+          "id": "d",
+          "text": "처벌 대상이 아니다."
         }
       ],
       "correctId": "a",
-      "explanation": "정의로운 사회는 모든 구성원의 권리를 공정하게 보장하는 사회입니다.",
+      "explanation": "사이버 공간 폭력도 법적·도덕적 책임이 따를 수 있습니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q10",
+      "unitId": "unit3",
+      "order": 10,
+      "question": "공정 무역·환경 마크 등 윤리적 소비와 연결되는 가치는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "정의·책임"
+        },
+        {
+          "id": "b",
+          "text": "편파"
+        },
+        {
+          "id": "c",
+          "text": "무책임"
+        },
+        {
+          "id": "d",
+          "text": "차별"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "소비 선택도 사회 정의와 연결될 수 있습니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q11",
+      "unitId": "unit3",
+      "order": 11,
+      "question": "다문화 사회에서 필요한 태도는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "문화·종교 다양성 존중"
+        },
+        {
+          "id": "b",
+          "text": "자문화 우월"
+        },
+        {
+          "id": "c",
+          "text": "배척"
+        },
+        {
+          "id": "d",
+          "text": "고정관념 강화"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "다양성 존중은 민주 사회의 기본 도덕입니다.",
       "tags": []
     },
     {
       "id": "unit3-q12",
       "unitId": "unit3",
       "order": 12,
-      "question": "정보 사회에서 인터넷에 게시된 음악, 글, 사진 등 타인의 창작물이나 아이디어를 보호하기 위해 법적으로 인정하는 권리는?",
+      "question": "인권과 의무의 관계로 옳은 것은?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "인권 존중이 타인에 대한 기본 의무를 포함한다."
+        },
+        {
+          "id": "b",
+          "text": "의무는 없어도 된다."
+        },
+        {
+          "id": "c",
+          "text": "인권은 선택 사항이다."
+        },
+        {
+          "id": "d",
+          "text": "타인 의무는 무시한다."
         }
       ],
       "correctId": "a",
-      "explanation": "타인의 직접적인 노력의 산물인 저작권을 존중하고 무단 도용하지 않아야 합니다.",
+      "explanation": "인권 보장은 상호 존중의 의무와 맞닿아 있습니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q13",
+      "unitId": "unit3",
+      "order": 13,
+      "question": "허위 정보 유포가 문제인 이유는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "사회 혼란과 타인 피해를 초래"
+        },
+        {
+          "id": "b",
+          "text": "항상 유익"
+        },
+        {
+          "id": "c",
+          "text": "표현의 자유만 해당"
+        },
+        {
+          "id": "d",
+          "text": "책임 없음"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "정보 전파에는 사실 확인과 책임이 필요합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q14",
+      "unitId": "unit3",
+      "order": 14,
+      "question": "장애인·소수자 차별을 막기 위한 사회적 노력은?",
+      "options": [
+        {
+          "id": "a",
+          "text": "인권 교육과 제도적 보호"
+        },
+        {
+          "id": "b",
+          "text": "차별 강화"
+        },
+        {
+          "id": "c",
+          "text": "배제"
+        },
+        {
+          "id": "d",
+          "text": "무관심"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "포용 사회는 인권과 정의 실현을 목표로 합니다.",
       "tags": []
     },
     {
       "id": "unit3-q15",
       "unitId": "unit3",
       "order": 15,
-      "question": "사이버 공간의 '익명성'이 유발할 수 있는 도덕적 문제점과 이를 예방하기 위해 필요한 올바른 자세를 서술하시오.",
+      "question": "사이버 공간에서 개인정보 보호가 중요한 이유는?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "프라이버시는 기본 인권이기 때문"
+        },
+        {
+          "id": "b",
+          "text": "공개만이 가치"
+        },
+        {
+          "id": "c",
+          "text": "무단 공유 허용"
+        },
+        {
+          "id": "d",
+          "text": "감시만 필요"
         }
       ],
       "correctId": "a",
-      "explanation": "",
+      "explanation": "사생활 침해는 심각한 인권 침해가 될 수 있습니다.",
       "tags": []
     },
     {
       "id": "unit3-q16",
       "unitId": "unit3",
       "order": 16,
-      "question": "'장애인 전용 주차구역'이나 '사회적 약자 배려 전형'과 같은 제도가 사회 정의에 부합하는 이유를 공평성의 관점에서 설명하시오.",
+      "question": "시민의 기본 도덕적 책임으로 옳은 것은?",
       "options": [
         {
           "id": "a",
-          "text": ""
+          "text": "법과 윤리 준수·공동체 참여"
+        },
+        {
+          "id": "b",
+          "text": "무관심"
+        },
+        {
+          "id": "c",
+          "text": "불법 방조"
+        },
+        {
+          "id": "d",
+          "text": "타인 비방"
         }
       ],
       "correctId": "a",
-      "explanation": "",
+      "explanation": "민주 시민은 권리와 책임을 함께 실천합니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q17",
+      "unitId": "unit3",
+      "order": 17,
+      "question": "정의와 형평(공평)의 관계는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "상황에 맞는 공정한 대우를 포함"
+        },
+        {
+          "id": "b",
+          "text": "모두 동일 대우만"
+        },
+        {
+          "id": "c",
+          "text": "약자 배제"
+        },
+        {
+          "id": "d",
+          "text": "강자 우대"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "정의는 필요 시 차등적 배려(형평)를 포함할 수 있습니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q18",
+      "unitId": "unit3",
+      "order": 18,
+      "question": "온라인 게임·SNS에서 금지되어야 할 행동은?",
+      "options": [
+        {
+          "id": "a",
+          "text": "욕설·괴롭힘·사칭"
+        },
+        {
+          "id": "b",
+          "text": "협력"
+        },
+        {
+          "id": "c",
+          "text": "예의"
+        },
+        {
+          "id": "d",
+          "text": "규칙 준수"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "사이버 폭력은 피해자에게 큰 상처를 줍니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q19",
+      "unitId": "unit3",
+      "order": 19,
+      "question": "인권 선언의 기본 정신은?",
+      "options": [
+        {
+          "id": "a",
+          "text": "모든 인간의 존엄과 평등한 권리"
+        },
+        {
+          "id": "b",
+          "text": "일부만 특권"
+        },
+        {
+          "id": "c",
+          "text": "차별 정당화"
+        },
+        {
+          "id": "d",
+          "text": "폭력 허용"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "인권은 보편적·천부적 권리로 인정됩니다.",
+      "tags": []
+    },
+    {
+      "id": "unit3-q20",
+      "unitId": "unit3",
+      "order": 20,
+      "question": "공동체에서 '약자 보호'가 정의로운 이유는?",
+      "options": [
+        {
+          "id": "a",
+          "text": "실질적 평등과 인간 존엄 실현"
+        },
+        {
+          "id": "b",
+          "text": "불평등 강화"
+        },
+        {
+          "id": "c",
+          "text": "배제"
+        },
+        {
+          "id": "d",
+          "text": "무책임"
+        }
+      ],
+      "correctId": "a",
+      "explanation": "약자 보호는 정의 실현의 중요한 측면입니다.",
       "tags": []
     }
   ]

@@ -5,6 +5,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ETHICS_UNIT_QUESTIONS } from "./ethics-questions-bank.mjs";
+
+export const ETHICS_QUESTIONS_PER_UNIT = 20;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -26,7 +29,6 @@ const UNIT_META = [
     subtitle: "도덕 ① · 나는 어떤 사람인가",
     textbookRef: "교과서 Ⅰ. 자신과의 관계",
     textbookPages: "p. 8 ~ 59",
-    questionOrders: [1, 2, 8, 11, 13, 20],
   },
   {
     id: "unit2",
@@ -34,7 +36,6 @@ const UNIT_META = [
     subtitle: "도덕 ① · 가족·우정·이웃",
     textbookRef: "교과서 Ⅱ. 타인과의 관계",
     textbookPages: "p. 60 ~ 119",
-    questionOrders: [3, 4, 6, 14, 18],
   },
   {
     id: "unit3",
@@ -42,7 +43,6 @@ const UNIT_META = [
     subtitle: "도덕 ① · 인권·정의·사이버 윤리",
     textbookRef: "교과서 Ⅲ. 사회·공동체와의 관계",
     textbookPages: "p. 120 ~ 175",
-    questionOrders: [5, 7, 9, 12, 15, 16],
   },
   {
     id: "unit4",
@@ -50,7 +50,6 @@ const UNIT_META = [
     subtitle: "도덕 ① · 환경 윤리·과학기술",
     textbookRef: "교과서 Ⅳ. 자연·초월과의 관계",
     textbookPages: "p. 176 ~ 216",
-    questionOrders: [10, 17, 19],
   },
 ];
 
@@ -388,38 +387,38 @@ function parsePart1(md) {
   return units;
 }
 
-function toQuestion(order, unitId) {
-  const bank = MC_BANK[order];
-  if (!bank) throw new Error(`Missing MC_BANK for Q${order}`);
-  const options = bank.options.map((text, i) => ({
-    id: CHOICE_IDS[i],
-    text,
-  }));
-  return {
-    id: `${unitId}-q${String(order).padStart(2, "0")}`,
-    unitId,
-    order,
-    question: bank.question,
-    options,
-    correctId: CHOICE_IDS[bank.correct],
-    explanation: bank.explanation,
-    tags: extractKeywords(bank.question + bank.explanation),
-  };
+function questionsFromUnitBank(unitId) {
+  const bank = ETHICS_UNIT_QUESTIONS[unitId];
+  if (!bank || bank.length !== ETHICS_QUESTIONS_PER_UNIT) {
+    throw new Error(
+      `${unitId}: 단원당 ${ETHICS_QUESTIONS_PER_UNIT}문항 필요 (현재 ${bank?.length ?? 0}문항)`
+    );
+  }
+  return bank.map((item, index) => {
+    const order = index + 1;
+    return {
+      id: `${unitId}-q${String(order).padStart(2, "0")}`,
+      unitId,
+      order,
+      question: item.question,
+      options: item.options.map((text, i) => ({
+        id: CHOICE_IDS[i],
+        text,
+      })),
+      correctId: CHOICE_IDS[item.correct],
+      explanation: item.explanation,
+      tags: extractKeywords(item.question + item.explanation),
+    };
+  });
 }
 
 function main() {
   const md = fs.readFileSync(MD_PATH, "utf8");
   const part1Units = parsePart1(md);
-  const part2Blocks = parsePart2Flat(md);
-  const useParsedQuestions =
-    part2Blocks.length >= 20 &&
-    part2Blocks.some((b) => b.fields.some((f) => f.includes("**발문:**")));
 
-  if (useParsedQuestions) {
-    console.log("PART 2: MD 문항 파싱 모드");
-  } else {
-    console.log("PART 2: 내장 MC_BANK 모드");
-  }
+  console.log(
+    `PART 2: 단원별 ${ETHICS_QUESTIONS_PER_UNIT}문항 (총 ${ETHICS_QUESTIONS_PER_UNIT * UNIT_META.length}문항)`
+  );
 
   if (part1Units.length !== 4) {
     console.error(`Expected 4 units in PART 1, got ${part1Units.length}`);
@@ -428,7 +427,6 @@ function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  const blockByOrder = new Map(part2Blocks.map((b) => [b.order, b]));
   let totalQuestions = 0;
 
   for (let i = 0; i < UNIT_META.length; i++) {
@@ -447,13 +445,7 @@ function main() {
       },
     ];
 
-    const questions = meta.questionOrders.map((order) => {
-      const block = blockByOrder.get(order);
-      if (useParsedQuestions && block) {
-        return questionFromBlock(block, meta.id);
-      }
-      return toQuestion(order, meta.id);
-    });
+    const questions = questionsFromUnitBank(meta.id);
     totalQuestions += questions.length;
 
     const unitJson = {
@@ -488,8 +480,9 @@ function main() {
     curriculum: "2022",
     questionCount: totalQuestions,
     unitCount: UNIT_META.length,
-    version: "2026-05-gemini-v1",
-    source: "docs/gemini-code-1780040427395.md",
+    version: "2026-05-gemini-v2",
+    source: "docs/gemini-code-1780040427395.md + scripts/ethics-questions-bank.mjs",
+    questionsPerUnit: ETHICS_QUESTIONS_PER_UNIT,
   };
 
   fs.writeFileSync(

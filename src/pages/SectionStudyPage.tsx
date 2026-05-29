@@ -1,6 +1,11 @@
 import { Link, useParams } from "react-router-dom";
 import { formatInlineMarkdown } from "../lib/formatText";
-import { getSectionKey, getUnit, unitUsesSections } from "../data/subjects";
+import {
+  getSectionKey,
+  getUnit,
+  getUnitQuizzes,
+  unitUsesSections,
+} from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 
 export function SectionStudyPage() {
@@ -37,6 +42,7 @@ export function SectionStudyPage() {
   const key = getSectionKey(subject.id, unit.id, section.id);
   const completed = isComplete(key);
   const unitPath = `/subject/${subject.id}/unit/${unit.id}`;
+  const quizCount = getUnitQuizzes(unit).length;
 
   return (
     <main
@@ -77,7 +83,7 @@ export function SectionStudyPage() {
 
       <div className="btn-row">
         <Link to={`${unitPath}/quiz`} className="btn btn-secondary">
-          단원 퀴즈 20문항
+          단원 퀴즈 {quizCount}문항
         </Link>
         {!completed && (
           <button
