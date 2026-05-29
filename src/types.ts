@@ -42,18 +42,6 @@ export type Unit = {
   lessons: Lesson[];
 };
 
-export type ExamScopeItem = {
-  id: string;
-  label: string;
-  hint?: string;
-};
-
-export type ResourceLink = {
-  label: string;
-  url: string;
-  note?: string;
-};
-
 export type Subject = {
   id: string;
   name: string;
@@ -67,10 +55,7 @@ export type Subject = {
   /** 공식 e북 URL */
   ebookUrl?: string;
   ebookLabel?: string;
-  /** T셀파·비바샘 등 외부 평가·자료 링크 */
-  resourceLinks?: ResourceLink[];
   units: Unit[];
-  examScope: ExamScopeItem[];
 };
 
 export type ProgressState = Record<string, boolean>;

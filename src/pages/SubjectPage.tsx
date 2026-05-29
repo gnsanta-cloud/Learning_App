@@ -1,10 +1,8 @@
 import { Link, useParams } from "react-router-dom";
 import { EbookBanner } from "../components/EbookBanner";
-import { ResourceLinkList } from "../components/ResourceLinkList";
 import { getSubject, getLessonKey } from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
-import { ExamChecklist } from "../components/ExamChecklist";
 
 export function SubjectPage() {
   const { subjectId } = useParams<{ subjectId: string }>();
@@ -62,21 +60,6 @@ export function SubjectPage() {
           accent={subject.accent}
         />
       )}
-
-      {subject.resourceLinks && subject.resourceLinks.length > 0 && (
-        <ResourceLinkList
-          title="T셀파 평가 샘플"
-          hint="천재 T셀파 공식 평가 자료 · 로그인·회원 이용"
-          links={subject.resourceLinks}
-          color={subject.color}
-        />
-      )}
-
-      <ExamChecklist
-        subjectId={subject.id}
-        items={subject.examScope}
-        color={subject.color}
-      />
 
       <h2 className="section-title">단원별 학습</h2>
       <ul className="unit-list">
