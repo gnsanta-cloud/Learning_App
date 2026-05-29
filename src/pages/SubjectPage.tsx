@@ -1,8 +1,9 @@
 import { Link, useParams } from "react-router-dom";
 import { EbookBanner } from "../components/EbookBanner";
-import { getSubject, getLessonKey } from "../data/subjects";
+import { getExamScope, getSubject, getLessonKey } from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
+import { ExamChecklist } from "../components/ExamChecklist";
 
 export function SubjectPage() {
   const { subjectId } = useParams<{ subjectId: string }>();
@@ -60,6 +61,12 @@ export function SubjectPage() {
           accent={subject.accent}
         />
       )}
+
+      <ExamChecklist
+        subjectId={subject.id}
+        items={getExamScope(subject)}
+        color={subject.color}
+      />
 
       <h2 className="section-title">단원별 학습</h2>
       <ul className="unit-list">

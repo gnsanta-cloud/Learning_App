@@ -2,17 +2,25 @@ import { Link } from "react-router-dom";
 import { useProgress } from "../hooks/useProgress";
 import { useStreak } from "../hooks/useStreak";
 import { useTheme, type ThemeMode } from "../hooks/useTheme";
+import { writeJson } from "../lib/storage";
 import { siteConfig } from "../config/site";
+
+const EXAM_KEY = "learning-app-exam-v1";
 
 export function SettingsPage() {
   const { resetAll } = useProgress();
   const { current, longest, todayDone } = useStreak();
   const { mode, setMode } = useTheme();
 
+  const resetExamAll = () => {
+    writeJson(EXAM_KEY, {});
+    window.location.reload();
+  };
+
   const handleResetProgress = () => {
     if (
       confirm(
-        "학습 진도를 모두 초기화할까요? (연속 학습 일수는 유지됩니다)"
+        "학습 진도를 모두 초기화할까요? (연속 학습 일수·시험 체크는 유지됩니다)"
       )
     ) {
       resetAll();
@@ -22,11 +30,12 @@ export function SettingsPage() {
   const handleResetAll = () => {
     if (
       confirm(
-        "진도와 연속 학습 기록을 모두 삭제합니다. 계속할까요?"
+        "진도, 시험 체크, 연속 학습 기록을 모두 삭제합니다. 계속할까요?"
       )
     ) {
       resetAll();
       localStorage.removeItem("learning-app-streak-v1");
+      writeJson(EXAM_KEY, {});
       window.location.reload();
     }
   };
@@ -89,6 +98,13 @@ export function SettingsPage() {
           onClick={handleResetProgress}
         >
           학습 진도만 초기화
+        </button>
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={resetExamAll}
+        >
+          시험 체크리스트만 초기화
         </button>
         <button type="button" className="btn btn-danger" onClick={handleResetAll}>
           모든 데이터 초기화

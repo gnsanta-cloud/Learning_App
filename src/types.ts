@@ -42,6 +42,14 @@ export type Unit = {
   lessons: Lesson[];
 };
 
+export type ExamScopeItem = {
+  id: string;
+  label: string;
+  hint?: string;
+  /** 샘플 시험 문항 출처 대단원 */
+  unitId: string;
+};
+
 export type Subject = {
   id: string;
   name: string;

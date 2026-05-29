@@ -1,4 +1,4 @@
-import type { Subject } from "../types";
+import type { ExamScopeItem, Subject } from "../types";
 import { ethicsSubject } from "./ethics/index";
 import { techHomeSubject } from "./techHome/index";
 
@@ -43,4 +43,13 @@ export function countQuizzes(subject: Subject): number {
     (n, u) => n + u.lessons.reduce((m, l) => m + l.quizzes.length, 0),
     0
   );
+}
+
+export function getExamScope(subject: Subject): ExamScopeItem[] {
+  return subject.units.map((unit) => ({
+    id: `exam-${subject.id}-${unit.id}`,
+    unitId: unit.id,
+    label: unit.title,
+    hint: unit.subtitle,
+  }));
 }
