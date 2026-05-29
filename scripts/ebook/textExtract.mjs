@@ -37,28 +37,38 @@ export function normalizeText(text) {
 export function extractDefinitions(text) {
   const defs = [];
   const patterns = [
-    /([^.!?]{10,100}?)(?:이라고|라고)\s*(?:한다|합니다)/g,
-    /([^.!?]{8,60}?)(?:을|를|이|가)\s*(?:말한다|뜻한다|의미한다)/g,
+    /([^.!?]{8,85}?)(?:이라고|라고)\s*(?:한다|합니다)\.?/g,
+    /([^.!?]{6,50}?)(?:은|는|이|가)\s*([^.!?]{8,60}?)(?:이다|입니다)\.?/g,
   ];
 
   for (const re of patterns) {
     let m;
     while ((m = re.exec(text)) !== null) {
-      const raw = m[1].trim();
-      if (!isValidSentence(raw)) continue;
-      const term = guessTerm(raw);
-      const definition = m[0].replace(/\s+/g, " ").trim().slice(0, 100);
-      defs.push({ term, definition: definition.slice(0, 100) });
+      let term, definition;
+      if (m[2]) {
+        term = m[1].trim();
+        definition = `${term}은(는) ${m[2].trim()}이다.`;
+      } else {
+        term = guessTerm(m[1]);
+        if (!term) continue;
+        definition = `${m[1].trim()}라고 한다.`;
+      }
+      if (!isValidSentence(definition) || GENERIC_TERMS.has(term)) continue;
+      defs.push({ term, definition: formatPoint(definition) });
     }
   }
 
   const seen = new Set();
   return defs.filter((d) => {
     const key = d.definition.slice(0, 35);
-    if (seen.has(key) || d.term.length < 2) return false;
+    if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function shortenTerm(term) {
+  return term.replace(/\s+/g, "").slice(0, 12);
 }
 
 function isValidSentence(s) {
@@ -71,9 +81,30 @@ function isValidSentence(s) {
   return /[가-힣]{4,}/.test(s);
 }
 
+const GENERIC_TERMS = new Set([
+  "중요한",
+  "중요한것",
+  "하지만",
+  "하지만이는",
+  "따라서",
+  "그러므로",
+  "이러한",
+  "청소년",
+  "청소년은",
+  "또한",
+  "그러나",
+  "즉",
+  "예를",
+]);
+
 function guessTerm(sentence) {
-  const m = sentence.match(/^(.{2,18}?)(?:은|는|이|가|을|를)\s/);
-  return m ? m[1] : sentence.slice(0, 12);
+  const named = sentence.match(/([가-힣]{2,10})란/);
+  if (named) return named[1];
+
+  const m = sentence.match(/^([가-힣]{2,10}?)(?:은|는|이|가|을|를|과|와)\s/);
+  if (m && !GENERIC_TERMS.has(m[1])) return m[1];
+
+  return null;
 }
 
 /** 핵심 포인트(불릿) 추출 */

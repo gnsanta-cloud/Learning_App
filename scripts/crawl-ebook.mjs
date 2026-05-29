@@ -94,15 +94,15 @@ async function main() {
       const points = extractKeyPoints(data.text, 6);
       const keywords = extractKeywords(data.text, points, 5);
       const summary = buildSummary(points, meta.title);
-      const quizzes = generateQuizzes(defs, points, 6);
+      const quizzes = generateQuizzes(defs, points, 6, meta.title);
 
       lessonContents.push({
         summary,
         points: points.length > 0 ? points : [`${meta.title}의 핵심 개념을 e북에서 학습합니다.`],
         keywords: keywords.length > 0 ? keywords : [meta.title.slice(0, 6)],
         reflections: [
-          `${meta.title}에서 기억할 점은?`,
-          `e북 내용과 나의 경험을 연결해 보자.`,
+          `${meta.title}에서 시험에 나올 핵심은?`,
+          `교과서 내용을 바탕으로 예시를 들어 설명해 보자.`,
         ],
         quizzes,
         source: {
