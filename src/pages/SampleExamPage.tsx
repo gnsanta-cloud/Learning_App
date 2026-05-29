@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { buildSampleExam, MIN_EXAM_UNITS, SAMPLE_EXAM_QUESTION_COUNT } from "../lib/sampleExam";
 import { QuizExcerpt } from "../components/QuizExcerpt";
 import { getExamScope, getSubject } from "../data/subjects";
+import { useWrongAnswers } from "../hooks/useWrongAnswers";
 
 export function SampleExamPage() {
   const { subjectId } = useParams<{ subjectId: string }>();
@@ -27,6 +28,7 @@ export function SampleExamPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const { markWrong, clearWrong } = useWrongAnswers();
 
   if (!subject) {
     return (
@@ -81,6 +83,9 @@ export function SampleExamPage() {
     setSelected(optionId);
     if (optionId === current.quiz.correctId) {
       setScore((s) => s + 1);
+      clearWrong(current.quiz.id);
+    } else {
+      markWrong(current.quiz.id);
     }
   };
 
@@ -160,8 +165,8 @@ export function SampleExamPage() {
           <p className="sample-exam-badge">기말고사 샘플</p>
           <h1>{subject.name}</h1>
           <p className="sample-exam-intro-desc">
-            체크한 대단원에서 뽑은 객관식 {SAMPLE_EXAM_QUESTION_COUNT}문항입니다.
-            앱 퀴즈를 바탕으로 한 연습용 시험지입니다.
+            체크한 대단원 Gemini DB({SAMPLE_EXAM_QUESTION_COUNT}문항)에서
+            무작위로 출제합니다. 틀린 문항은 오답 노트에 저장됩니다.
           </p>
           <div className="sample-exam-scope-card">
             <h2 className="section-title">시험 범위</h2>

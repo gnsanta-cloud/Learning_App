@@ -1,7 +1,7 @@
 {
   "name": "learning-app",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "preview:pages": "npm run build && vite preview --base /Learning_App/",
     "icons": "node scripts/generate-pwa-icons.mjs",
-    "ebook:sync": "node scripts/crawl-ebook.mjs"
+    "ebook:sync": "node scripts/crawl-ebook.mjs",
+    "import:gemini": "node scripts/import-gemini-md.mjs",
+    "import:gemini:ethics": "node scripts/import-gemini-ethics.mjs",
+    "import:gemini:all": "node scripts/import-gemini-md.mjs && node scripts/import-gemini-ethics.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

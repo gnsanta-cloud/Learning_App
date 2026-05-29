@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useProgress } from "../hooks/useProgress";
 import { useStreak } from "../hooks/useStreak";
 import { useTheme, type ThemeMode } from "../hooks/useTheme";
+import { useWrongAnswers } from "../hooks/useWrongAnswers";
 import { writeJson } from "../lib/storage";
 import { siteConfig } from "../config/site";
 
@@ -11,6 +12,7 @@ export function SettingsPage() {
   const { resetAll } = useProgress();
   const { current, longest, todayDone } = useStreak();
   const { mode, setMode } = useTheme();
+  const { wrongIds, clearAll: clearWrongAll } = useWrongAnswers();
 
   const resetExamAll = () => {
     writeJson(EXAM_KEY, {});
@@ -34,6 +36,7 @@ export function SettingsPage() {
       )
     ) {
       resetAll();
+      clearWrongAll();
       localStorage.removeItem("learning-app-streak-v1");
       writeJson(EXAM_KEY, {});
       window.location.reload();
@@ -91,6 +94,20 @@ export function SettingsPage() {
       </section>
 
       <section className="settings-block">
+        <h2 className="section-title">오답 노트</h2>
+        <p className="settings-hint">
+          퀴즈에서 틀린 문항 {wrongIds.length}개가 저장되어 있습니다.
+        </p>
+        <Link
+          to="/review"
+          className={`btn btn-primary ${wrongIds.length === 0 ? "btn-disabled" : ""}`}
+          style={wrongIds.length === 0 ? { pointerEvents: "none", opacity: 0.5 } : undefined}
+        >
+          오답 다시 풀기
+        </Link>
+      </section>
+
+      <section className="settings-block">
         <h2 className="section-title">데이터</h2>
         <button
           type="button"
@@ -136,7 +153,7 @@ export function SettingsPage() {
       </section>
 
       <p className="footer-note">
-        버전 0.2.0
+        버전 0.3.0
         <br />
         데이터는 이 기기 브라우저에만 저장됩니다.
       </p>

@@ -1,0 +1,11 @@
+{
+  "subject": "ethics",
+  "grade": 1,
+  "publisher": "비상교육",
+  "author": "김국현",
+  "curriculum": "2022",
+  "questionCount": 20,
+  "unitCount": 4,
+  "version": "2026-05-gemini-v1",
+  "source": "docs/gemini-code-1780040427395.md"
+}

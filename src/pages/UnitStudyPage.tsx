@@ -1,11 +1,17 @@
 import { Link, useParams } from "react-router-dom";
 import { EbookBanner } from "../components/EbookBanner";
 import { ProgressBar } from "../components/ProgressBar";
+import { formatInlineMarkdown } from "../lib/formatText";
 import {
   getLessonKey,
+  getSectionKey,
   getUnit,
   getUnitEbookUrl,
+  getUnitProgressKeys,
+  getUnitQuizKey,
+  unitUsesSections,
 } from "../data/subjects";
+import { getUnitQuizzes } from "../lib/geminiContent";
 import { useProgress } from "../hooks/useProgress";
 
 export function UnitStudyPage() {
@@ -27,12 +33,12 @@ export function UnitStudyPage() {
   }
 
   const { subject, unit } = result;
-  const lessonKeys = unit.lessons.map((l) =>
-    getLessonKey(subject.id, unit.id, l.id)
-  );
-  const done = countCompleted(lessonKeys);
-  const quizCount = unit.lessons.reduce((n, l) => n + l.quizzes.length, 0);
+  const progressKeys = getUnitProgressKeys(subject.id, unit);
+  const done = countCompleted(progressKeys);
+  const quizCount = getUnitQuizzes(unit).length;
   const ebookUrl = getUnitEbookUrl(subject, unit);
+  const usesSections = unitUsesSections(unit);
+  const unitQuizDone = isComplete(getUnitQuizKey(subject.id, unit.id));
 
   return (
     <main
@@ -53,7 +59,7 @@ export function UnitStudyPage() {
         <p>{unit.subtitle}</p>
       </header>
 
-      <ProgressBar done={done} total={lessonKeys.length} color={subject.color} />
+      <ProgressBar done={done} total={progressKeys.length} color={subject.color} />
 
       {ebookUrl && (
         <EbookBanner
@@ -69,34 +75,6 @@ export function UnitStudyPage() {
         />
       )}
 
-      {(unit.textbookChapters?.length || unit.textbookRef) && (
-        <section className="study-section">
-          <h2 className="section-title">교과서 목차</h2>
-          <div className="textbook-ref-card">
-            {unit.textbookRef && (
-              <p className="textbook-ref-label">{unit.textbookRef}</p>
-            )}
-            {unit.textbookChapters && (
-              <ul className="textbook-chapter-list">
-                {unit.textbookChapters.map((chapter) => (
-                  <li key={chapter}>{chapter}</li>
-                ))}
-              </ul>
-            )}
-            {unit.textbookPages && (
-              <p className="textbook-pages">쪽수: {unit.textbookPages}</p>
-            )}
-          </div>
-        </section>
-      )}
-
-      {unit.studyGuide && (
-        <section className="study-section">
-          <h2 className="section-title">학습 방법</h2>
-          <div className="summary-box">{unit.studyGuide}</div>
-        </section>
-      )}
-
       {unit.goals && unit.goals.length > 0 && (
         <section className="study-section">
           <h2 className="section-title">학습 목표</h2>
@@ -108,38 +86,108 @@ export function UnitStudyPage() {
         </section>
       )}
 
-      <section className="study-section">
-        <h2 className="section-title">
-          앱 학습 ({unit.lessons.length}개 · 퀴즈 {quizCount}문항)
-        </h2>
-        <ol className="unit-study-steps">
-          <li>e북에서 교과서 내용을 읽습니다.</li>
-          <li>아래 소단원 요약·핵심 정리를 확인합니다.</li>
-          <li>퀴즈로 이해도를 점검합니다.</li>
-        </ol>
-        <ul className="lesson-list">
-          {unit.lessons.map((lesson, index) => {
-            const key = getLessonKey(subject.id, unit.id, lesson.id);
-            const completed = isComplete(key);
-            return (
-              <li key={lesson.id}>
-                <Link
-                  to={`/subject/${subject.id}/unit/${unit.id}/lesson/${lesson.id}`}
-                  className={`lesson-item ${completed ? "done" : ""}`}
-                >
-                  <span className="lesson-step" aria-hidden>
-                    {index + 1}
-                  </span>
-                  <span className="lesson-check" aria-hidden>
-                    {completed ? "✓" : ""}
-                  </span>
-                  <span className="lesson-title">{lesson.title}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      {unit.studyGuide && (
+        <section className="study-section">
+          <h2 className="section-title">학습 방법</h2>
+          <div className="summary-box">{unit.studyGuide}</div>
+        </section>
+      )}
+
+      {usesSections && unit.sections && (
+        <>
+          <section className="study-section">
+            <h2 className="section-title">핵심 요약 미리보기</h2>
+            {unit.sections.map((section) => (
+              <details key={section.id} className="summary-accordion">
+                <summary>{section.title}</summary>
+                <ul className="points-list points-list--formatted">
+                  {section.bullets.map((b) => (
+                    <li key={b}>{formatInlineMarkdown(b)}</li>
+                  ))}
+                </ul>
+              </details>
+            ))}
+          </section>
+
+          <section className="study-section">
+            <h2 className="section-title">
+              소단원 학습 ({unit.sections.length}개)
+            </h2>
+            <ol className="unit-study-steps">
+              <li>e북에서 교과서 내용을 읽습니다.</li>
+              <li>아래 소단원별 핵심 요약을 확인합니다.</li>
+              <li>단원 퀴즈 20문항으로 기말고사를 대비합니다.</li>
+            </ol>
+            <ul className="lesson-list">
+              {unit.sections.map((section, index) => {
+                const key = getSectionKey(subject.id, unit.id, section.id);
+                const completed = isComplete(key);
+                return (
+                  <li key={section.id}>
+                    <Link
+                      to={`/subject/${subject.id}/unit/${unit.id}/section/${section.id}`}
+                      className={`lesson-item ${completed ? "done" : ""}`}
+                    >
+                      <span className="lesson-step" aria-hidden>
+                        {index + 1}
+                      </span>
+                      <span className="lesson-check" aria-hidden>
+                        {completed ? "✓" : ""}
+                      </span>
+                      <span className="lesson-title">{section.title}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </>
+      )}
+
+      {!usesSections && unit.lessons.length > 0 && (
+        <section className="study-section">
+          <h2 className="section-title">
+            앱 학습 ({unit.lessons.length}개 소단원)
+          </h2>
+          <ul className="lesson-list">
+            {unit.lessons.map((lesson, index) => {
+              const key = getLessonKey(subject.id, unit.id, lesson.id);
+              const completed = isComplete(key);
+              return (
+                <li key={lesson.id}>
+                  <Link
+                    to={`/subject/${subject.id}/unit/${unit.id}/lesson/${lesson.id}`}
+                    className={`lesson-item ${completed ? "done" : ""}`}
+                  >
+                    <span className="lesson-step" aria-hidden>
+                      {index + 1}
+                    </span>
+                    <span className="lesson-check" aria-hidden>
+                      {completed ? "✓" : ""}
+                    </span>
+                    <span className="lesson-title">{lesson.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {quizCount > 0 && (
+        <section className="study-section unit-quiz-cta">
+          <h2 className="section-title">단원 퀴즈</h2>
+          <p className="unit-quiz-desc">
+            기말고사 대비 객관식 {quizCount}문항 · 80% 이상이면 합격
+          </p>
+          <Link
+            to={`/subject/${subject.id}/unit/${unit.id}/quiz`}
+            className={`btn btn-primary btn-block ${unitQuizDone ? "btn-done" : ""}`}
+          >
+            {unitQuizDone ? "✓ 단원 퀴즈 완료 · 다시 풀기" : `단원 퀴즈 ${quizCount}문항 시작`}
+          </Link>
+        </section>
+      )}
     </main>
   );
 }

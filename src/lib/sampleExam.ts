@@ -1,3 +1,4 @@
+import { getUnitQuizzes } from "./geminiContent";
 import type { Quiz, Subject } from "../types";
 
 export const MIN_EXAM_UNITS = 2;
@@ -20,7 +21,7 @@ function shuffle<T>(items: T[]): T[] {
   return arr;
 }
 
-/** 체크된 대단원에서 기말고사용 샘플 문항 20개를 추출합니다. */
+/** 체크된 대단원에서 기말고사용 샘플 문항을 추출합니다. */
 export function buildSampleExam(
   subject: Subject,
   unitIds: string[],
@@ -31,6 +32,19 @@ export function buildSampleExam(
   for (const unitId of unitIds) {
     const unit = subject.units.find((u) => u.id === unitId);
     if (!unit) continue;
+
+    const quizzes = getUnitQuizzes(unit);
+    if (quizzes.length > 0) {
+      for (const quiz of quizzes) {
+        pool.push({
+          quiz,
+          unitId: unit.id,
+          unitTitle: unit.title,
+          lessonTitle: "단원 퀴즈",
+        });
+      }
+      continue;
+    }
 
     for (const lesson of unit.lessons) {
       for (const quiz of lesson.quizzes) {

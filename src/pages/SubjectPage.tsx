@@ -1,6 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import { EbookBanner } from "../components/EbookBanner";
-import { getExamScope, getSubject, getLessonKey } from "../data/subjects";
+import {
+  getExamScope,
+  getSubject,
+  getUnitProgressKeys,
+  unitUsesSections,
+} from "../data/subjects";
+import { getUnitQuizzes } from "../lib/geminiContent";
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
 import { ExamChecklist } from "../components/ExamChecklist";
@@ -20,7 +26,7 @@ export function SubjectPage() {
   }
 
   const allKeys = subject.units.flatMap((u) =>
-    u.lessons.map((l) => getLessonKey(subject.id, u.id, l.id))
+    getUnitProgressKeys(subject.id, u)
   );
   const done = countCompleted(allKeys);
 
@@ -71,14 +77,12 @@ export function SubjectPage() {
       <h2 className="section-title">단원별 학습</h2>
       <ul className="unit-list">
         {subject.units.map((unit) => {
-          const unitKeys = unit.lessons.map((l) =>
-            getLessonKey(subject.id, unit.id, l.id)
-          );
+          const unitKeys = getUnitProgressKeys(subject.id, unit);
           const unitDone = countCompleted(unitKeys);
-          const quizTotal = unit.lessons.reduce(
-            (n, l) => n + l.quizzes.length,
-            0
-          );
+          const quizTotal = getUnitQuizzes(unit).length;
+          const studyLabel = unitUsesSections(unit)
+            ? `${unit.sections?.length ?? 0} 소단원 + 퀴즈`
+            : `${unit.lessons.length} 소단원`;
 
           return (
             <li key={unit.id}>
@@ -100,9 +104,11 @@ export function SubjectPage() {
                 )}
                 <div className="unit-card-meta">
                   <span>
-                    {unitDone}/{unitKeys.length} 소단원
+                    {unitDone}/{unitKeys.length} 완료
                   </span>
-                  <span>퀴즈 {quizTotal}문항</span>
+                  <span>
+                    {studyLabel} · 퀴즈 {quizTotal}문항
+                  </span>
                 </div>
                 <div className="progress-bar-wrap">
                   <div className="progress-track">

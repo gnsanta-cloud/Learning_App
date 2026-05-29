@@ -3,7 +3,7 @@ import {
   subjects,
   countLessons,
   countQuizzes,
-  getLessonKey,
+  getUnitProgressKeys,
 } from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
@@ -30,7 +30,7 @@ export function HomePage() {
       <div className="subject-grid">
         {subjects.map((subject) => {
           const keys = subject.units.flatMap((u) =>
-            u.lessons.map((l) => getLessonKey(subject.id, u.id, l.id))
+            getUnitProgressKeys(subject.id, u)
           );
           const done = countCompleted(keys);
           const total = countLessons(subject);
@@ -55,8 +55,8 @@ export function HomePage() {
                 <div>
                   <h2>{subject.name}</h2>
                   <p className="subject-meta">
-                    {subject.publisher} · {subject.author} · {total}개 소단원 ·{" "}
-                    {quizTotal}문항 퀴즈
+                    {subject.publisher} · {subject.author} · 학습 {total}단계 ·{" "}
+                    퀴즈 {quizTotal}문항
                   </p>
                 </div>
               </div>

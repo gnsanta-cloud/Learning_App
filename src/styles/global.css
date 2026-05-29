@@ -1152,3 +1152,57 @@ button {
   font-size: 0.72rem;
   font-weight: 700;
 }
+
+.points-list--formatted li {
+  line-height: 1.6;
+}
+
+.summary-accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.85rem;
+}
+
+.summary-accordion summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--subject-color);
+}
+
+.summary-accordion .points-list {
+  margin-top: 0.75rem;
+}
+
+.unit-quiz-cta {
+  margin-top: 0.5rem;
+}
+
+.unit-quiz-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.btn-block {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-done {
+  opacity: 0.92;
+}
+
+.settings-hint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.review-toolbar {
+  max-width: 520px;
+  margin: 0 auto;
+}

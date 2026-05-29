@@ -1,4 +1,5 @@
-import type { ExamScopeItem, Subject } from "../types";
+import type { ExamScopeItem, Quiz, Subject } from "../types";
+import { getUnitQuizzes } from "../lib/geminiContent";
 import { ethicsSubject } from "./ethics/index";
 import { techHomeSubject } from "./techHome/index";
 
@@ -34,15 +35,53 @@ export function getLessonKey(
   return `${subjectId}:${unitId}:${lessonId}`;
 }
 
+export function getSectionKey(
+  subjectId: string,
+  unitId: string,
+  sectionId: string
+): string {
+  return `${subjectId}:${unitId}:section:${sectionId}`;
+}
+
+export function getUnitQuizKey(subjectId: string, unitId: string): string {
+  return `${subjectId}:${unitId}:unit-quiz`;
+}
+
+export function unitUsesSections(unit: Subject["units"][number]): boolean {
+  return Boolean(unit.sections?.length);
+}
+
+export function countStudyItems(subject: Subject): number {
+  return subject.units.reduce((n, u) => {
+    if (unitUsesSections(u)) {
+      return n + (u.sections?.length ?? 0) + 1;
+    }
+    return n + u.lessons.length;
+  }, 0);
+}
+
+export function getUnitProgressKeys(
+  subjectId: string,
+  unit: Subject["units"][number]
+): string[] {
+  if (unitUsesSections(unit)) {
+    const sectionKeys =
+      unit.sections?.map((s) => getSectionKey(subjectId, unit.id, s.id)) ?? [];
+    return [...sectionKeys, getUnitQuizKey(subjectId, unit.id)];
+  }
+  return unit.lessons.map((l) => getLessonKey(subjectId, unit.id, l.id));
+}
+
 export function countLessons(subject: Subject): number {
-  return subject.units.reduce((n, u) => n + u.lessons.length, 0);
+  return countStudyItems(subject);
 }
 
 export function countQuizzes(subject: Subject): number {
-  return subject.units.reduce(
-    (n, u) => n + u.lessons.reduce((m, l) => m + l.quizzes.length, 0),
-    0
-  );
+  return subject.units.reduce((n, u) => n + getUnitQuizzes(u).length, 0);
+}
+
+export function getAllQuizzes(subject: Subject): Quiz[] {
+  return subject.units.flatMap((u) => getUnitQuizzes(u));
 }
 
 export function getExamScope(subject: Subject): ExamScopeItem[] {

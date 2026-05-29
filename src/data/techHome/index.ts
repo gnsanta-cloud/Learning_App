@@ -1,10 +1,5 @@
 import type { Subject } from "../../types";
-import { unit1Youth } from "./unit1-youth";
-import { unit2Lifestyle } from "./unit2-lifestyle";
-import { unit3SelfMgmt } from "./unit3-self-mgmt";
-import { unit4Invention } from "./unit4-invention";
-import { unit5Materials } from "./unit5-materials";
-import { unit6Energy } from "./unit6-energy";
+import { geminiTechHomeUnits } from "./geminiUnits";
 
 export const techHomeSubject: Subject = {
   id: "tech-home",
@@ -19,12 +14,5 @@ export const techHomeSubject: Subject = {
   ebookUrl:
     "https://cdata2.tsherpa.co.kr/ebook/tsherpa/22/22ebook_M/EB2022GC2Etc_02_70L_S/resource/include/main/index.html",
   ebookLabel: "T셀파 전자저작물 (기술·가정 ①)",
-  units: [
-    unit1Youth,
-    unit2Lifestyle,
-    unit3SelfMgmt,
-    unit4Invention,
-    unit5Materials,
-    unit6Energy,
-  ],
+  units: geminiTechHomeUnits,
 };

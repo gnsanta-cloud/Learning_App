@@ -27,6 +27,14 @@ export type Lesson = {
   quizzes: Quiz[];
 };
 
+/** Gemini DB 소단원 요약 (기술·가정) */
+export type Section = {
+  id: string;
+  title: string;
+  bullets: string[];
+  keywords: string[];
+};
+
 export type Unit = {
   id: string;
   title: string;
@@ -43,6 +51,11 @@ export type Unit = {
   studyGuide?: string;
   /** 단원 학습 목표 */
   goals?: string[];
+  /** Gemini 핵심 요약 소단원 */
+  sections?: Section[];
+  /** 단원 퀴즈 20문항 (Gemini DB) */
+  unitQuizzes?: Quiz[];
+  /** 도덕 등 레거시 소단원 */
   lessons: Lesson[];
 };
 
