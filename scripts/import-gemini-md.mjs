@@ -8,7 +8,11 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const MD_PATH = path.join(ROOT, "docs", "gemini-code-1780039929126.md");
+const MD_PATH = process.env.GEMINI_MD_PATH
+  ? path.isAbsolute(process.env.GEMINI_MD_PATH)
+    ? process.env.GEMINI_MD_PATH
+    : path.join(ROOT, process.env.GEMINI_MD_PATH)
+  : path.join(ROOT, "docs", "gemini-code-1780039929126.md");
 const OUT_DIR = path.join(ROOT, "data", "tech-home");
 
 const UNIT_META = [

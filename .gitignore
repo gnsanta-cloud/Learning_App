@@ -1,4 +1,7 @@
 node_modules
+.env
+.env.local
+docs/*.bak-*.md
 dist
 dist-ssr
 *.local

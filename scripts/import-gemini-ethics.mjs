@@ -8,7 +8,13 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const MD_PATH = path.join(ROOT, "docs", "gemini-code-1780040427395.md");
+const MD_PATH = process.env.GEMINI_MD_PATH
+  ? path.isAbsolute(process.env.GEMINI_MD_PATH)
+    ? process.env.GEMINI_MD_PATH
+    : path.join(ROOT, process.env.GEMINI_MD_PATH)
+  : path.join(ROOT, "docs", "gemini-code-1780040427395.md");
+
+const CIRCLED = ["①", "②", "③", "④", "⑤", "⑥"];
 const OUT_DIR = path.join(ROOT, "data", "ethics");
 
 const CHOICE_IDS = ["a", "b", "c", "d"];
@@ -277,6 +283,86 @@ function extractKeywords(text) {
   return [...new Set(matches.map((m) => m.slice(2, -2).trim()))].slice(0, 12);
 }
 
+function parseField(line, field) {
+  const re = new RegExp(`\\*\\*${field}:\\*\\*\\s*(.+)`);
+  const m = line.match(re);
+  return m ? m[1].trim() : null;
+}
+
+function parseChoices(line) {
+  const parts = line.replace(/^\*\s+\*\*선지:\*\*\s*/, "").split(/\s*\/\s*/);
+  return parts.map((part, i) => {
+    const trimmed = part.trim();
+    const circled = CIRCLED.find((c) => trimmed.startsWith(c));
+    let text = trimmed;
+    if (circled) text = trimmed.slice(circled.length).trim();
+    return { id: CHOICE_IDS[i] ?? `opt${i}`, text };
+  });
+}
+
+function parseCorrectAnswer(line) {
+  const m = line.match(/\*\*정답:\*\*\s*(.+)/);
+  if (!m) return null;
+  const raw = m[1].trim();
+  const idx = CIRCLED.indexOf(raw);
+  if (idx >= 0) return CHOICE_IDS[idx];
+  const num = Number(raw);
+  if (num >= 1 && num <= 4) return CHOICE_IDS[num - 1];
+  return null;
+}
+
+/** PART 2 flat Q01~Q20 (tech-home 형식) */
+function parsePart2Flat(md) {
+  const part2 = md.split("## PART 2.")[1] ?? "";
+  const lines = part2.split("\n");
+  const blocks = [];
+  let currentQ = null;
+
+  for (const line of lines) {
+    const inline = line.match(/^### Q(\d+)\.\s+(.+)/);
+    if (inline) {
+      if (currentQ) blocks.push(currentQ);
+      currentQ = {
+        order: Number(inline[1]),
+        fields: [`*   **발문:** ${inline[2].trim()}`],
+      };
+      continue;
+    }
+    const head = line.match(/^### Q(\d+)$/);
+    if (head) {
+      if (currentQ) blocks.push(currentQ);
+      currentQ = { order: Number(head[1]), fields: [] };
+      continue;
+    }
+    if (currentQ && line.startsWith("*")) {
+      currentQ.fields.push(line);
+    }
+  }
+  if (currentQ) blocks.push(currentQ);
+  return blocks;
+}
+
+function questionFromBlock(block, unitId) {
+  const stemLine = block.fields.find((f) => f.includes("**발문:**"));
+  const choiceLine = block.fields.find((f) => f.includes("**선지:**"));
+  const answerLine = block.fields.find((f) => f.includes("**정답:**"));
+  const explainLine = block.fields.find((f) => f.includes("**해설:**"));
+
+  return {
+    id: `${unitId}-q${String(block.order).padStart(2, "0")}`,
+    unitId,
+    order: block.order,
+    question: parseField(stemLine ?? "", "발문") ?? "",
+    options: parseChoices(choiceLine ?? ""),
+    correctId: parseCorrectAnswer(answerLine ?? "") ?? "a",
+    explanation: parseField(explainLine ?? "", "해설") ?? "",
+    tags: extractKeywords(
+      (parseField(stemLine ?? "", "발문") ?? "") +
+        (parseField(explainLine ?? "", "해설") ?? "")
+    ),
+  };
+}
+
 function parsePart1(md) {
   const part1 = md.split("## PART 2.")[0];
   const units = [];
@@ -324,6 +410,16 @@ function toQuestion(order, unitId) {
 function main() {
   const md = fs.readFileSync(MD_PATH, "utf8");
   const part1Units = parsePart1(md);
+  const part2Blocks = parsePart2Flat(md);
+  const useParsedQuestions =
+    part2Blocks.length >= 20 &&
+    part2Blocks.some((b) => b.fields.some((f) => f.includes("**발문:**")));
+
+  if (useParsedQuestions) {
+    console.log("PART 2: MD 문항 파싱 모드");
+  } else {
+    console.log("PART 2: 내장 MC_BANK 모드");
+  }
 
   if (part1Units.length !== 4) {
     console.error(`Expected 4 units in PART 1, got ${part1Units.length}`);
@@ -332,6 +428,7 @@ function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
+  const blockByOrder = new Map(part2Blocks.map((b) => [b.order, b]));
   let totalQuestions = 0;
 
   for (let i = 0; i < UNIT_META.length; i++) {
@@ -344,17 +441,19 @@ function main() {
         id: sectionId,
         unitId: meta.id,
         order: 1,
-        title: raw.title.replace(/^단원 \d+\.\s*/, (m) => m),
+        title: raw.title,
         bullets: raw.bullets,
         keywords: extractKeywords(raw.bullets.join(" ")),
       },
     ];
 
-    sections[0].title = raw.title;
-
-    const questions = meta.questionOrders.map((order) =>
-      toQuestion(order, meta.id)
-    );
+    const questions = meta.questionOrders.map((order) => {
+      const block = blockByOrder.get(order);
+      if (useParsedQuestions && block) {
+        return questionFromBlock(block, meta.id);
+      }
+      return toQuestion(order, meta.id);
+    });
     totalQuestions += questions.length;
 
     const unitJson = {
