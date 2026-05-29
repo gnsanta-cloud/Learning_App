@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { buildSampleExam, MIN_EXAM_UNITS, SAMPLE_EXAM_QUESTION_COUNT } from "../lib/sampleExam";
+import { QuizExcerpt } from "../components/QuizExcerpt";
 import { getExamScope, getSubject } from "../data/subjects";
 
 export function SampleExamPage() {
@@ -206,6 +207,10 @@ export function SampleExamPage() {
       </p>
 
       <div className="quiz-card">
+        <QuizExcerpt
+          excerpt={current.quiz.excerpt}
+          sourcePage={current.quiz.sourcePage}
+        />
         <h2 className="quiz-question">{current.quiz.question}</h2>
         <ul className="quiz-options">
           {current.quiz.options.map((opt) => {

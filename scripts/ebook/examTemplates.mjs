@@ -51,17 +51,17 @@ export function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function cleanOption(text, max = 52) {
-  let t = text
+export function cleanOption(text) {
+  return text
     .replace(/\s+/g, " ")
     .replace(/([가-힣])수([가-힣])/g, "$1수 $2")
     .replace(/([가-힣])에([가-힣])/g, "$1에 $2")
     .replace(/([가-힣])를([가-힣])/g, "$1를 $2")
     .replace(/([가-힣])과([가-힣])/g, "$1과 $2")
+    .replace(/([가-힣])에\s+게/g, "$1에 게")
+    .replace(/([가-힣])자신의/g, "$1 자신의")
     .replace(/▲|그림|Link|활동|e북|교과서\s*쪽/g, "")
     .trim();
-  if (t.length > max) t = `${t.slice(0, max - 1)}…`;
-  return t;
 }
 
 export function shortenTerm(term, max = 14) {

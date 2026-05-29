@@ -6,6 +6,10 @@ export type QuizOption = {
 export type Quiz = {
   id: string;
   question: string;
+  /** eBook·교과서 발췌 본문 */
+  excerpt?: string;
+  /** 교과서 쪽수 (eBook 기준) */
+  sourcePage?: number;
   options: QuizOption[];
   correctId: string;
   explanation: string;

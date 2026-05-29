@@ -9,12 +9,12 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { TSHERPA_TECH_HOME, VIVASAM_ETHICS } from "./ebook/config.mjs";
 import {
-  fetchPageRange,
+  fetchPagesInRange,
   assignPageRangesFromUnits,
 } from "./ebook/tsherpaCrawler.mjs";
 import {
-  extractDefinitions,
-  extractKeyPoints,
+  extractDefinitionsFromPages,
+  extractKeyPointsFromPages,
   extractKeywords,
   buildSummary,
 } from "./ebook/textExtract.mjs";
@@ -50,13 +50,13 @@ async function main() {
     process.stdout.write(
       `   ${range.unitId} L${range.lessonIndex + 1} p.${range.pageStart}~${range.pageEnd} … `
     );
-    const text = await fetchPageRange(
+    const { pages, text, textLength } = await fetchPagesInRange(
       cfg.epubBase,
       range.pageStart,
       range.pageEnd,
       cfg.pageOffset
     );
-    extracted[key] = { ...range, text, textLength: text.length };
+    extracted[key] = { ...range, pages, text, textLength };
     console.log(`${text.length}자`);
   }
 
@@ -90,15 +90,18 @@ async function main() {
         continue;
       }
 
-      const defs = extractDefinitions(data.text);
-      const points = extractKeyPoints(data.text, 6);
+      const defs = extractDefinitionsFromPages(data.pages);
+      const points = extractKeyPointsFromPages(data.pages, 6);
       const keywords = extractKeywords(data.text, points, 5);
       const summary = buildSummary(points, meta.title);
       const quizzes = generateQuizzes(defs, points, 6, meta.title);
 
       lessonContents.push({
         summary,
-        points: points.length > 0 ? points : [`${meta.title}의 핵심 개념을 e북에서 학습합니다.`],
+        points:
+          points.length > 0
+            ? points.map((p) => p.text)
+            : [`${meta.title}의 핵심 개념을 e북에서 학습합니다.`],
         keywords: keywords.length > 0 ? keywords : [meta.title.slice(0, 6)],
         reflections: [
           `${meta.title}에서 시험에 나올 핵심은?`,

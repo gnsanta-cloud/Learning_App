@@ -54,7 +54,12 @@ export function extractDefinitions(text) {
         definition = `${m[1].trim()}라고 한다.`;
       }
       if (!isValidSentence(definition) || GENERIC_TERMS.has(term)) continue;
-      defs.push({ term, definition: formatPoint(definition) });
+      defs.push({
+        term,
+        definition: formatPoint(definition, false),
+        sourcePage: null,
+        excerpt: makeExcerpt(definition),
+      });
     }
   }
 
@@ -78,7 +83,56 @@ function isValidSentence(s) {
   if (/[A-Za-z]{3,}/.test(s)) return false;
   if (/발달과인간관계|의식주생활|자기관리와|기술과발명|재료와설계|친환경에너지/.test(s.replace(/\s/g, "")))
     return false;
-  return /[가-힣]{4,}/.test(s);
+  return true;
+}
+
+/** 페이지별 정의 추출 (쪽수·발췌 포함) */
+export function extractDefinitionsFromPages(pages) {
+  const all = [];
+  for (const { page, text } of pages) {
+    for (const def of extractDefinitions(text)) {
+      all.push({
+        ...def,
+        sourcePage: page,
+        excerpt: makeExcerpt(def.definition),
+      });
+    }
+  }
+  return dedupeByKey(all, (d) => d.definition.slice(0, 40));
+}
+
+/** 페이지별 핵심 문장 추출 */
+export function extractKeyPointsFromPages(pages, max = 6) {
+  const all = [];
+  for (const { page, text } of pages) {
+    for (const sentence of extractKeyPoints(text, max)) {
+      all.push({
+        text: sentence,
+        sourcePage: page,
+        excerpt: makeExcerpt(sentence),
+      });
+    }
+  }
+  return dedupeByKey(all, (p) => p.text.slice(0, 40)).slice(0, max);
+}
+
+function dedupeByKey(items, keyFn) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = keyFn(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** 발췌용 문장 (문제 본문에 표시) */
+export function makeExcerpt(text, max = 200) {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut) + "…";
 }
 
 const GENERIC_TERMS = new Set([
@@ -137,15 +191,17 @@ export function extractKeyPoints(text, max = 6) {
   return picked;
 }
 
-function formatPoint(s) {
+function formatPoint(s, allowTruncate = true) {
   let p = s.replace(/\s+/g, " ").trim();
   if (!/[.!?]$/.test(p)) p += ".";
-  return p.length > 90 ? `${p.slice(0, 87)}…` : p;
+  if (!allowTruncate || p.length <= 120) return p;
+  return `${p.slice(0, 117)}…`;
 }
 
 /** 키워드 추출 */
 export function extractKeywords(text, points, max = 5) {
-  const fromPoints = points
+  const pointTexts = points.map((p) => (typeof p === "string" ? p : p.text));
+  const fromPoints = pointTexts
     .flatMap((p) => p.match(/[가-힣]{2,8}/g) || [])
     .filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
 
@@ -184,9 +240,10 @@ const STOP_WORDS = new Set([
 ]);
 
 export function buildSummary(points, title) {
-  if (points.length === 0) {
+  const texts = points.map((p) => (typeof p === "string" ? p : p.text));
+  if (texts.length === 0) {
     return `${title} 내용을 e북에서 학습하고 퀴즈로 확인합니다.`;
   }
-  const core = points.slice(0, 2).join(" ");
-  return core.length > 120 ? `${core.slice(0, 117)}…` : core;
+  const core = texts.slice(0, 2).join(" ");
+  return core.length > 160 ? `${core.slice(0, 157)}…` : core;
 }

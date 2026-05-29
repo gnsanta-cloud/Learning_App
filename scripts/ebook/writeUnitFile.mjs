@@ -9,8 +9,16 @@ function writeQuiz(quiz) {
   const opts = quiz.options
     .map((o) => `{ id: ${tsStr(o.id)}, text: ${tsStr(o.text)} }`)
     .join(", ");
+  const excerptLine =
+    quiz.excerpt != null
+      ? `\n          excerpt: ${tsStr(quiz.excerpt)},`
+      : "";
+  const pageLine =
+    quiz.sourcePage != null
+      ? `\n          sourcePage: ${quiz.sourcePage},`
+      : "";
   return `        {
-          question: ${tsStr(quiz.question)},
+          question: ${tsStr(quiz.question)},${excerptLine}${pageLine}
           options: [${opts}],
           correctId: ${tsStr(quiz.correctId)},
           explanation: ${tsStr(quiz.explanation)},

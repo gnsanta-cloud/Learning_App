@@ -51,19 +51,25 @@ export async function fetchEpubPage(epubBase, textbookPage, pageOffset) {
   return { fileNum, url, text: htmlToText(html) };
 }
 
-export async function fetchPageRange(epubBase, start, end, pageOffset, onProgress) {
-  const texts = [];
+export async function fetchPagesInRange(epubBase, start, end, pageOffset) {
+  const pages = [];
   for (let p = start; p <= end; p++) {
     try {
       const { text } = await fetchEpubPage(epubBase, p, pageOffset);
-      if (text.length > 30) texts.push(text);
-      onProgress?.(p, end);
+      if (text.length > 30) pages.push({ page: p, text });
     } catch {
       /* 일부 페이지 누락 허용 */
     }
     await sleep(FETCH_DELAY_MS);
   }
-  return texts.join("\n");
+  const text = pages.map((pg) => pg.text).join("\n");
+  return { pages, text, textLength: text.length };
+}
+
+export async function fetchPageRange(epubBase, start, end, pageOffset, onProgress) {
+  const { pages, text } = await fetchPagesInRange(epubBase, start, end, pageOffset);
+  for (const pg of pages) onProgress?.(pg.page, end);
+  return text;
 }
 
 export function assignLessonPageRanges(tocUnits, unitConfigs) {

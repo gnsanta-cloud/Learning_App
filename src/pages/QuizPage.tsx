@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { QuizExcerpt } from "../components/QuizExcerpt";
 import { getSubject, getLessonKey } from "../data/subjects";
 import { useProgress } from "../hooks/useProgress";
 
@@ -100,6 +101,7 @@ export function QuizPage() {
       </p>
 
       <div className="quiz-card">
+        <QuizExcerpt excerpt={current.excerpt} sourcePage={current.sourcePage} />
         <h2 className="quiz-question">{current.question}</h2>
         <ul className="quiz-options">
           {current.options.map((opt) => {
