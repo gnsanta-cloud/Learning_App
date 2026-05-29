@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ExamScopeItem } from "../types";
 import { useExamChecklist } from "../hooks/useExamChecklist";
+import { MIN_EXAM_UNITS } from "../lib/sampleExam";
 
 type Props = {
   subjectId: string;
@@ -18,8 +19,10 @@ export function ExamChecklist({ subjectId, items, color }: Props) {
     .filter((item) => isChecked(item.id))
     .map((item) => item.unitId);
 
+  const canStartSampleExam = checkedUnitIds.length >= MIN_EXAM_UNITS;
+
   const handleSampleExam = () => {
-    if (checkedUnitIds.length === 0) return;
+    if (!canStartSampleExam) return;
     const params = new URLSearchParams({
       units: checkedUnitIds.join(","),
     });
@@ -41,8 +44,8 @@ export function ExamChecklist({ subjectId, items, color }: Props) {
         </span>
       </div>
       <p className="exam-hint">
-        학교 시험 범위에 맞게 대단원을 체크한 뒤, 기말고사 샘플문제를
-        풀어보세요.
+        시험 범위에서 <strong>2개 이상</strong> 대단원을 체크한 뒤, 기말고사
+        샘플문제(20문항)를 풀어보세요.
       </p>
       <ul className="exam-list">
         {items.map((item) => {
@@ -69,13 +72,14 @@ export function ExamChecklist({ subjectId, items, color }: Props) {
       <button
         type="button"
         className="btn btn-primary exam-sample-btn"
-        disabled={checkedUnitIds.length === 0}
+        disabled={!canStartSampleExam}
         onClick={handleSampleExam}
       >
-        기말고사 샘플문제
+        기말고사 샘플문제 (20문항)
         {checkedUnitIds.length > 0 && (
           <span className="exam-sample-btn-meta">
             {checkedUnitIds.length}개 대단원
+            {!canStartSampleExam && " · 2개 이상 필요"}
           </span>
         )}
       </button>

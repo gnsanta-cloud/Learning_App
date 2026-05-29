@@ -1,5 +1,8 @@
 import type { Quiz, Subject } from "../types";
 
+export const MIN_EXAM_UNITS = 2;
+export const SAMPLE_EXAM_QUESTION_COUNT = 20;
+
 export type SampleExamItem = {
   examIndex: number;
   quiz: Quiz;
@@ -17,21 +20,18 @@ function shuffle<T>(items: T[]): T[] {
   return arr;
 }
 
-/** 체크된 대단원에서 기말고사용 샘플 문항을 추출합니다. */
+/** 체크된 대단원에서 기말고사용 샘플 문항 20개를 추출합니다. */
 export function buildSampleExam(
   subject: Subject,
   unitIds: string[],
-  perUnit = 4,
-  maxTotal = 24
+  questionCount = SAMPLE_EXAM_QUESTION_COUNT
 ): SampleExamItem[] {
-  const picked: SampleExamItem[] = [];
-  let examIndex = 0;
+  const pool: Omit<SampleExamItem, "examIndex">[] = [];
 
   for (const unitId of unitIds) {
     const unit = subject.units.find((u) => u.id === unitId);
     if (!unit) continue;
 
-    const pool: Omit<SampleExamItem, "examIndex">[] = [];
     for (const lesson of unit.lessons) {
       for (const quiz of lesson.quizzes) {
         pool.push({
@@ -42,11 +42,17 @@ export function buildSampleExam(
         });
       }
     }
-
-    for (const item of shuffle(pool).slice(0, perUnit)) {
-      picked.push({ ...item, examIndex: examIndex++ });
-    }
   }
 
-  return shuffle(picked).slice(0, maxTotal);
+  if (pool.length === 0) return [];
+
+  const shuffled = shuffle(pool);
+  const picked: SampleExamItem[] = [];
+
+  for (let i = 0; i < questionCount; i++) {
+    const item = shuffled[i % shuffled.length];
+    picked.push({ ...item, examIndex: i });
+  }
+
+  return shuffle(picked).map((item, index) => ({ ...item, examIndex: index }));
 }

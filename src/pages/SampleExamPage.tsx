@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { buildSampleExam } from "../lib/sampleExam";
+import { buildSampleExam, MIN_EXAM_UNITS, SAMPLE_EXAM_QUESTION_COUNT } from "../lib/sampleExam";
 import { getExamScope, getSubject } from "../data/subjects";
 
 export function SampleExamPage() {
@@ -44,7 +44,7 @@ export function SampleExamPage() {
     (id) => scopeByUnit.get(id) ?? subject.units.find((u) => u.id === id)?.title ?? id
   );
 
-  if (unitIds.length === 0 || questions.length === 0) {
+  if (unitIds.length < MIN_EXAM_UNITS || questions.length === 0) {
     return (
       <main
         className="page"
@@ -61,8 +61,8 @@ export function SampleExamPage() {
         <div className="sample-exam-empty">
           <h2>기말고사 샘플문제</h2>
           <p>
-            {unitIds.length === 0
-              ? "시험 범위에서 대단원을 하나 이상 체크한 뒤 다시 시도해 주세요."
+            {unitIds.length < MIN_EXAM_UNITS
+              ? "시험 범위에서 대단원을 2개 이상 체크한 뒤 다시 시도해 주세요."
               : "선택한 대단원에서 출제할 문항을 찾지 못했습니다."}
           </p>
           <Link to={subjectPath} className="btn btn-primary">
@@ -158,8 +158,8 @@ export function SampleExamPage() {
           <p className="sample-exam-badge">기말고사 샘플</p>
           <h1>{subject.name}</h1>
           <p className="sample-exam-intro-desc">
-            체크한 대단원에서 뽑은 객관식 {questions.length}문항입니다. 앱
-            퀴즈를 바탕으로 한 연습용 시험지입니다.
+            체크한 대단원에서 뽑은 객관식 {SAMPLE_EXAM_QUESTION_COUNT}문항입니다.
+            앱 퀴즈를 바탕으로 한 연습용 시험지입니다.
           </p>
           <div className="sample-exam-scope-card">
             <h2 className="section-title">시험 범위</h2>
@@ -169,7 +169,9 @@ export function SampleExamPage() {
               ))}
             </ul>
           </div>
-          <p className="sample-exam-meta">총 {questions.length}문항 · 제한 시간 없음</p>
+          <p className="sample-exam-meta">
+            총 {SAMPLE_EXAM_QUESTION_COUNT}문항 · 제한 시간 없음
+          </p>
           <button
             type="button"
             className="btn btn-primary"
