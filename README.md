@@ -37,9 +37,9 @@ npm run preview
 1. GitHub에 저장소 생성 후 push (`Learning_App` 권장)
 2. 저장소 **Settings → Pages → Build and deployment** 에서 Source를 **GitHub Actions** 로 설정
 3. `main` 브랜치에 push하면 `.github/workflows/deploy.yml` 이 빌드·배포
-4. 접속 URL: `https://hjroh75.github.io/Learning_App/` (사용자·저장소명에 맞게 변경)
+4. 접속 URL: `https://gnsanta-cloud.github.io/Learning_App/`
 
-**저장소:** [github.com/hjroh75/Learning_App](https://github.com/hjroh75/Learning_App)
+**저장소:** [github.com/gnsanta-cloud/Learning_App](https://github.com/gnsanta-cloud/Learning_App)
 
 최초 push (GitHub CLI):
 
@@ -51,11 +51,17 @@ gh repo create Learning_App --public --source=. --remote=origin --push
 로컬에서 GitHub Pages 경로를 맞춰 보려면:
 
 ```bash
-# PowerShell
-$env:VITE_BASE_PATH="/Learning_App/"; npm run build; npm run preview
+npm run preview:pages
 ```
 
-저장소 이름이 다르면 `VITE_BASE_PATH` 값을 `/저장소이름/` 으로 바꿉니다.
+또는:
+
+```bash
+npm run build
+npm run preview
+```
+
+배포 URL: **https://gnsanta-cloud.github.io/Learning_App/**
 
 ## 앱 설치 (모바일·PC)
 
