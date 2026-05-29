@@ -8,7 +8,6 @@ import {
 import { useProgress } from "../hooks/useProgress";
 import { ProgressBar } from "../components/ProgressBar";
 import { StreakCard } from "../components/StreakCard";
-import { siteConfig } from "../config/site";
 
 export function HomePage() {
   const { countCompleted } = useProgress();
@@ -67,27 +66,6 @@ export function HomePage() {
         })}
       </div>
 
-      <p className="footer-note">
-        교과서 본문 대신 교육과정 요약·퀴즈로 구성했습니다.
-        <br />
-        <a
-          href={siteConfig.githubRepo}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="footer-link"
-        >
-          GitHub 저장소 ↗
-        </a>
-        {" · "}
-        <a
-          href={siteConfig.githubPages}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="footer-link"
-        >
-          웹 앱 (GitHub Pages) ↗
-        </a>
-      </p>
     </main>
   );
 }

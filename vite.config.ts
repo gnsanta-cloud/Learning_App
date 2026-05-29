@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
           description:
             "천재 기술·가정 ① · 비상 도덕 ① (2022 개정) 단원별 학습·퀴즈",
           theme_color: "#1e3a5f",
-          background_color: "#f4f6f9",
+          background_color: "#1e3a5f",
           display: "standalone",
           orientation: "portrait",
           lang: "ko",
