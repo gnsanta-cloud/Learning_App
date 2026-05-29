@@ -1,29 +1,18 @@
 /**
- * eBook 추출 내용 → 내신·기말고사형 객관식 문항 생성
+ * eBook 굵은 글씨(용어·소제목) 블록 → 내신형 객관식
+ * 보기는 eBook 본문 문장만 사용 (임의 변형·작문 없음)
  */
-import {
-  EXAM_STEMS,
-  WRONG_PATTERNS,
-  pick,
-  cleanOption,
-  shortenTerm,
-} from "./examTemplates.mjs";
+import { cleanOption } from "./examTemplates.mjs";
 
-const GENERIC_TERMS = new Set([
-  "중요한",
-  "하지만",
-  "따라서",
-  "그러므로",
-  "이러한",
-  "청소년",
-  "청소년은",
-  "또한",
-  "그러나",
-]);
+const TERM_STEMS = [
+  (term) => `"${term}"에 대한 설명으로 옳은 것은?`,
+  (term) => `"${term}"의 의미로 알맞은 것은?`,
+  (term) => `다음 중 "${term}"에 대해 바르게 설명한 것은?`,
+];
 
-const EXCERPT_STEMS_INCORRECT = [
-  "위 발췌 내용에 대한 설명으로 옳지 않은 것은?",
-  "교과서 발췌 내용과 맞지 않는 설명은?",
+const TERM_STEMS_INCORRECT = [
+  (term) => `"${term}"에 대한 설명으로 옳지 않은 것은?`,
+  (term) => `"${term}"과(와) 관련하여 틀린 것은?`,
 ];
 
 function shuffle(arr) {
@@ -35,200 +24,138 @@ function shuffle(arr) {
   return a;
 }
 
-function sourceOf(item) {
-  if (!item || typeof item === "string") {
-    return { excerpt: undefined, sourcePage: undefined };
+function pickDistractors(item, items, count, exclude = new Set()) {
+  const correct = cleanOption(item.text);
+  exclude.add(correct);
+  const pool = shuffle(
+    items.filter((x) => {
+      const t = cleanOption(x.text);
+      return t.length >= 12 && !exclude.has(t) && x.term !== item.term;
+    })
+  );
+  const picked = [];
+  for (const x of pool) {
+    const t = cleanOption(x.text);
+    if (!exclude.has(t)) {
+      picked.push(t);
+      exclude.add(t);
+    }
+    if (picked.length >= count) break;
   }
+  return picked;
+}
+
+function buildOptions(correctText, distractors) {
+  const options = shuffle([
+    { id: "a", text: correctText },
+    ...distractors.slice(0, 3).map((text, i) => ({
+      id: ["b", "c", "d"][i],
+      text,
+    })),
+  ]);
+  while (options.length < 4) {
+    options.push({ id: ["a", "b", "c", "d"][options.length], text: correctText });
+  }
+  const correctId = options.find((o) => o.text === correctText)?.id || "a";
+  return { options, correctId };
+}
+
+function buildCorrectQuiz(item, items, stemIndex) {
+  const correct = cleanOption(item.text);
+  const distractors = pickDistractors(item, items, 3);
+  const { options, correctId } = buildOptions(correct, distractors);
+  const termStem = TERM_STEMS[stemIndex % TERM_STEMS.length](item.term);
+
   return {
-    excerpt: item.excerpt,
+    question: termStem,
     sourcePage: item.sourcePage,
+    options,
+    correctId,
+    explanation: correct,
   };
 }
 
-function textOf(item) {
-  if (typeof item === "string") return item;
-  return item.definition || item.text || "";
-}
+function buildIncorrectQuiz(item, items, stemIndex) {
+  const correctDesc = cleanOption(item.text);
+  const exclude = new Set([correctDesc]);
+  const wrongCandidates = pickDistractors(item, items, 1, exclude);
+  const wrongStatement = wrongCandidates[0];
+  if (!wrongStatement) return buildCorrectQuiz(item, items, stemIndex);
 
-function makeWrongAnswers(correct, pool, term, count = 3) {
-  const wrongs = [];
-  const used = new Set([cleanOption(correct)]);
-
-  for (const fn of shuffle(WRONG_PATTERNS)) {
-    const w = cleanOption(fn(correct));
-    if (w.length >= 8 && !used.has(w) && w !== cleanOption(correct)) {
-      wrongs.push(w);
-      used.add(w);
+  const truePool = [correctDesc];
+  for (const x of shuffle(items)) {
+    const t = cleanOption(x.text);
+    if (t !== wrongStatement && !truePool.includes(t)) {
+      truePool.push(t);
     }
-    if (wrongs.length >= count) break;
+    if (truePool.length >= 3) break;
   }
 
-  for (const item of shuffle(pool)) {
-    if (wrongs.length >= count) break;
-    const raw = textOf(item);
-    const w = cleanOption(raw);
-    if (w.length >= 8 && !used.has(w) && w !== cleanOption(correct)) {
-      wrongs.push(w);
-      used.add(w);
-    }
-  }
+  const { options, correctId } = buildOptions(wrongStatement, truePool.slice(0, 3));
+  const termStem = TERM_STEMS_INCORRECT[stemIndex % TERM_STEMS_INCORRECT.length](item.term);
 
-  const fallbacks = [
-    `${shortenTerm(term)}과(와) 관련이 없는 설명`,
-    `${shortenTerm(term)}의 의미를 잘못 이해한 설명`,
-    "개념을 반대로 이해한 설명",
-    "단원 내용과 맞지 않는 설명",
-  ];
-  for (const f of fallbacks) {
-    if (wrongs.length >= count) break;
-    if (!used.has(f)) {
-      wrongs.push(f);
-      used.add(f);
-    }
-  }
-
-  return wrongs.slice(0, count);
+  return {
+    question: termStem,
+    sourcePage: item.sourcePage,
+    options,
+    correctId,
+    explanation: `"${item.term}"의 올바른 설명: ${correctDesc}`,
+  };
 }
 
-const EXCERPT_STEMS = [
-  "위 발췌 내용에 대한 설명으로 옳은 것은?",
-  "위 교과서 내용과 일치하는 설명은?",
-  "발췌 내용을 바르게 이해한 것은?",
-];
-
-function withSource(base, sourceItem, questionOverride) {
-  const { excerpt, sourcePage } = sourceOf(sourceItem);
-  if (excerpt) {
-    return {
-      ...base,
-      excerpt,
-      sourcePage,
-      question: questionOverride ?? pick(EXCERPT_STEMS),
-    };
-  }
-  return base;
-}
-
-function buildMcq(question, correctText, pool, term, sourceItem) {
-  const correct = cleanOption(correctText);
-  const wrongs = makeWrongAnswers(correctText, pool, term, 3);
-  const options = shuffle([
-    { id: "a", text: correct },
-    { id: "b", text: wrongs[0] || "틀린 설명 1" },
-    { id: "c", text: wrongs[1] || "틀린 설명 2" },
-    { id: "d", text: wrongs[2] || "틀린 설명 3" },
-  ]);
-  const correctId = options.find((o) => o.text === correct)?.id || "a";
-  return withSource(
-    {
-      question,
-      options,
-      correctId,
-      explanation: cleanOption(correctText),
-    },
-    sourceItem
-  );
-}
-
-function buildDefinitionQuiz(def, topic, pool, typeIndex) {
-  const term = shortenTerm(def.term);
-  const types = ["correct", "feature", "incorrect", "correct"];
-  const type = types[typeIndex % types.length];
-
-  if (type === "incorrect") {
-    const question = pick(EXAM_STEMS.incorrect(term));
-    const wrongs = makeWrongAnswers(def.definition, pool, term, 5);
-    const wrongStatement = cleanOption(
-      wrongs.find((w) => w !== cleanOption(def.definition)) || wrongs[0]
-    );
-    const truePool = shuffle(
-      [def.definition, ...pool.map(textOf).filter((p) => p !== def.definition)]
-    )
-      .map((t) => cleanOption(t))
-      .filter((t) => t !== wrongStatement)
-      .slice(0, 3);
-
-    const optionTexts = shuffle([wrongStatement, ...truePool]);
-    const ids = ["a", "b", "c", "d"];
-    const options = optionTexts.slice(0, 4).map((text, i) => ({ id: ids[i], text }));
-    while (options.length < 4) {
-      options.push({ id: ids[options.length], text: `${term}과(와) 관련 있는 설명` });
-    }
-
-    return withSource(
-      {
-        question,
-        options,
-        correctId: options.find((o) => o.text === wrongStatement)?.id || "a",
-        explanation: `"${term}"의 올바른 설명: ${cleanOption(def.definition)}`,
-      },
-      def,
-      pick(EXCERPT_STEMS_INCORRECT)
-    );
-  }
-
-  const question = pick(EXAM_STEMS[type](term, topic));
-  return buildMcq(question, def.definition, pool, term, def);
-}
-
-function buildPointQuiz(pointItem, topic, pool, typeIndex) {
-  const point = textOf(pointItem);
-  const termMatch = point.match(/([가-힣]{2,8})(?:란|은|는|이|가|을|를|과|와)/);
-  const rawTerm = termMatch?.[1];
-  const term =
-    rawTerm && !GENERIC_TERMS.has(rawTerm)
-      ? shortenTerm(rawTerm)
-      : shortenTerm(topic.replace(/[·\s]/g, "").slice(0, 8));
-
-  const types = ["appropriate", "compare", "practice", "feature", "cause"];
-  const type = types[typeIndex % types.length];
-  const question = pick(
-    EXAM_STEMS[type](type === "appropriate" || type === "practice" ? topic : term, topic)
-  );
-
-  return buildMcq(question, point, pool, term, pointItem);
-}
-
-export function generateQuizzes(definitions, points, count = 6, lessonTitle = "이 단원") {
-  const topic = lessonTitle.replace(/[·]/g, " ");
-  const pool = [
-    ...definitions.map((d) => d.definition),
-    ...points.map((p) => textOf(p)),
-  ].filter(Boolean);
+export function generateQuizzes(boldItems, count = 6, _lessonTitle = "이 단원") {
+  const items = boldItems
+    .filter((b) => b.term && b.text && b.text.length >= 15)
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  if (items.length < 4) return [];
 
   const quizzes = [];
-  const usedQuestions = new Set();
+  const used = new Set();
 
-  const defCount = Math.min(Math.ceil(count * 0.5), definitions.length);
-  for (let i = 0; i < defCount; i++) {
-    const quiz = buildDefinitionQuiz(definitions[i], topic, pool, i);
-    const key = `${quiz.sourcePage ?? ""}:${quiz.excerpt ?? quiz.question}`;
-    if (!usedQuestions.has(key)) {
-      quizzes.push(quiz);
-      usedQuestions.add(key);
-    }
-  }
+  for (let i = 0; i < items.length && quizzes.length < count; i++) {
+    const item = items[i];
+    const quiz =
+      i % 4 === 3
+        ? buildIncorrectQuiz(item, items, i)
+        : buildCorrectQuiz(item, items, i);
 
-  let pi = 0;
-  while (quizzes.length < count && pi < points.length) {
-    const quiz = buildPointQuiz(points[pi], topic, pool, pi);
-    const key = `${quiz.sourcePage ?? ""}:${quiz.excerpt ?? quiz.question}`;
-    if (!usedQuestions.has(key)) {
-      quizzes.push(quiz);
-      usedQuestions.add(key);
-    }
-    pi++;
-  }
-
-  while (quizzes.length < count && definitions.length > 0) {
-    const def = definitions[quizzes.length % definitions.length];
-    const quiz = buildDefinitionQuiz(def, topic, pool, quizzes.length + 2);
-    const key = `${quiz.sourcePage ?? ""}:${quiz.excerpt ?? quiz.question}`;
-    if (!usedQuestions.has(key)) {
-      quizzes.push(quiz);
-      usedQuestions.add(key);
-    } else break;
+    const key = `${quiz.sourcePage ?? ""}:${item.term}:${quiz.correctId}`;
+    if (used.has(key)) continue;
+    used.add(key);
+    quizzes.push(quiz);
   }
 
   return quizzes.slice(0, count);
+}
+
+export function generateQuizzesWithFallback(boldItems, pages, count = 6, lessonTitle) {
+  const primary = boldItems.filter(
+    (b) =>
+      b.type === "term-definition" ||
+      b.type === "glossary" ||
+      b.type === "section" ||
+      (b.score ?? 0) >= 6
+  );
+  let quizzes = generateQuizzes(primary.length >= 4 ? primary : boldItems, count, lessonTitle);
+  if (quizzes.length >= count) return quizzes;
+
+  const fallbackItems = [];
+  for (const { page, text } of pages) {
+    for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+      const s = sentence.trim();
+      if (s.length < 25 || s.length > 100 || !/[가-힣]/.test(s)) continue;
+      if (/[\u0006\u0007]|[,·].*[,·]/.test(s)) continue;
+      if (/^(?:남자|여자|공통)/.test(s) && s.split(/[,.]/).length >= 3) continue;
+      fallbackItems.push({
+        term: s.slice(0, 8).replace(/\s/g, ""),
+        text: cleanOption(s),
+        sourcePage: page,
+        score: 1,
+      });
+    }
+  }
+
+  const merged = [...primary, ...fallbackItems];
+  quizzes = generateQuizzes(merged, count, lessonTitle);
+  return quizzes;
 }

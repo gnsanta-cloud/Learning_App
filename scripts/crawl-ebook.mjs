@@ -13,12 +13,11 @@ import {
   assignPageRangesFromUnits,
 } from "./ebook/tsherpaCrawler.mjs";
 import {
-  extractDefinitionsFromPages,
-  extractKeyPointsFromPages,
+  extractBoldHighlightsFromPages,
   extractKeywords,
   buildSummary,
 } from "./ebook/textExtract.mjs";
-import { generateQuizzes } from "./ebook/quizGenerator.mjs";
+import { generateQuizzesWithFallback } from "./ebook/quizGenerator.mjs";
 import {
   readUnitMeta,
   writeUnitFile,
@@ -90,17 +89,26 @@ async function main() {
         continue;
       }
 
-      const defs = extractDefinitionsFromPages(data.pages);
-      const points = extractKeyPointsFromPages(data.pages, 6);
-      const keywords = extractKeywords(data.text, points, 5);
+      const boldItems = extractBoldHighlightsFromPages(data.pages, 24);
+      const points = boldItems.slice(0, 8).map((b) => `${b.term}: ${b.text}`);
+      const keywords = extractKeywords(
+        data.text,
+        boldItems.map((b) => ({ text: b.text })),
+        5
+      );
       const summary = buildSummary(points, meta.title);
-      const quizzes = generateQuizzes(defs, points, 6, meta.title);
+      const quizzes = generateQuizzesWithFallback(
+        boldItems,
+        data.pages,
+        6,
+        meta.title
+      );
 
       lessonContents.push({
         summary,
         points:
           points.length > 0
-            ? points.map((p) => p.text)
+            ? points
             : [`${meta.title}의 핵심 개념을 e북에서 학습합니다.`],
         keywords: keywords.length > 0 ? keywords : [meta.title.slice(0, 6)],
         reflections: [

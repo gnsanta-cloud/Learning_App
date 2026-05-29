@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { htmlToText } from "./textExtract.mjs";
+import { parsePageContent } from "./textExtract.mjs";
 
 const FETCH_DELAY_MS = 30;
 
@@ -48,15 +48,16 @@ export async function fetchEpubPage(epubBase, textbookPage, pageOffset) {
   const fileNum = textbookPage + pageOffset;
   const url = `${epubBase}/page-${fileNum}.html`;
   const html = await fetchText(url);
-  return { fileNum, url, text: htmlToText(html) };
+  const { text, raw } = parsePageContent(html);
+  return { fileNum, url, text, raw };
 }
 
 export async function fetchPagesInRange(epubBase, start, end, pageOffset) {
   const pages = [];
   for (let p = start; p <= end; p++) {
     try {
-      const { text } = await fetchEpubPage(epubBase, p, pageOffset);
-      if (text.length > 30) pages.push({ page: p, text });
+      const { text, raw } = await fetchEpubPage(epubBase, p, pageOffset);
+      if (text.length > 30) pages.push({ page: p, text, raw });
     } catch {
       /* 일부 페이지 누락 허용 */
     }

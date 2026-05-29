@@ -1,17 +1,9 @@
-type QuizExcerptProps = {
-  excerpt?: string;
+type QuizSourcePageProps = {
   sourcePage?: number;
 };
 
-export function QuizExcerpt({ excerpt, sourcePage }: QuizExcerptProps) {
-  if (!excerpt) return null;
+export function QuizExcerpt({ sourcePage }: QuizSourcePageProps) {
+  if (sourcePage == null) return null;
 
-  return (
-    <blockquote className="quiz-excerpt">
-      {sourcePage != null && (
-        <span className="quiz-excerpt-page">교과서 p.{sourcePage}</span>
-      )}
-      <p className="quiz-excerpt-text">{excerpt}</p>
-    </blockquote>
-  );
+  return <p className="quiz-source-page">교과서 p.{sourcePage}</p>;
 }

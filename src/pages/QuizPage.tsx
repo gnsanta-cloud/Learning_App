@@ -101,7 +101,7 @@ export function QuizPage() {
       </p>
 
       <div className="quiz-card">
-        <QuizExcerpt excerpt={current.excerpt} sourcePage={current.sourcePage} />
+        <QuizExcerpt sourcePage={current.sourcePage} />
         <h2 className="quiz-question">{current.question}</h2>
         <ul className="quiz-options">
           {current.options.map((opt) => {
