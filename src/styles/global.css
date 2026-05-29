@@ -11,6 +11,12 @@
   --header-bg: rgba(244, 246, 249, 0.92);
   --danger: #dc2626;
   --danger-bg: #fef2f2;
+  --quiz-correct-bg: #ecfdf5;
+  --quiz-correct-border: #059669;
+  --quiz-correct-text: #065f46;
+  --quiz-wrong-bg: #fef2f2;
+  --quiz-wrong-border: #dc2626;
+  --quiz-wrong-text: #991b1b;
   color-scheme: light;
 }
 
@@ -25,6 +31,12 @@
   --header-bg: rgba(15, 23, 42, 0.92);
   --danger: #f87171;
   --danger-bg: #450a0a;
+  --quiz-correct-bg: #064e3b;
+  --quiz-correct-border: #34d399;
+  --quiz-correct-text: #d1fae5;
+  --quiz-wrong-bg: #7f1d1d;
+  --quiz-wrong-border: #f87171;
+  --quiz-wrong-text: #fecaca;
   color-scheme: dark;
 }
 
@@ -427,13 +439,17 @@ button {
 }
 
 .quiz-option.correct {
-  border-color: #059669;
-  background: #ecfdf5;
+  border-color: var(--quiz-correct-border);
+  background: var(--quiz-correct-bg);
+  color: var(--quiz-correct-text);
+  font-weight: 600;
 }
 
 .quiz-option.wrong {
-  border-color: #dc2626;
-  background: #fef2f2;
+  border-color: var(--quiz-wrong-border);
+  background: var(--quiz-wrong-bg);
+  color: var(--quiz-wrong-text);
+  font-weight: 600;
 }
 
 .quiz-option:disabled {
@@ -449,13 +465,15 @@ button {
 }
 
 .quiz-feedback.ok {
-  background: #ecfdf5;
-  color: #065f46;
+  background: var(--quiz-correct-bg);
+  color: var(--quiz-correct-text);
+  border: 1px solid var(--quiz-correct-border);
 }
 
 .quiz-feedback.err {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--quiz-wrong-bg);
+  color: var(--quiz-wrong-text);
+  border: 1px solid var(--quiz-wrong-border);
 }
 
 .quiz-next-btn {
