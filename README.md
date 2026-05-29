@@ -34,10 +34,19 @@ npm run preview
 
 ### GitHub Pages 자동 배포
 
-1. GitHub에 저장소를 `Learning_App` 등의 이름으로 push
+1. GitHub에 저장소 생성 후 push (`Learning_App` 권장)
 2. 저장소 **Settings → Pages → Build and deployment** 에서 Source를 **GitHub Actions** 로 설정
 3. `main` 브랜치에 push하면 `.github/workflows/deploy.yml` 이 빌드·배포
-4. 접속 URL: `https://<사용자>.github.io/<저장소이름>/`
+4. 접속 URL: `https://hjroh75.github.io/Learning_App/` (사용자·저장소명에 맞게 변경)
+
+**저장소:** [github.com/hjroh75/Learning_App](https://github.com/hjroh75/Learning_App)
+
+최초 push (GitHub CLI):
+
+```bash
+gh auth login
+gh repo create Learning_App --public --source=. --remote=origin --push
+```
 
 로컬에서 GitHub Pages 경로를 맞춰 보려면:
 
