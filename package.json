@@ -8,7 +8,8 @@
     "build": "node scripts/generate-pwa-icons.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "preview:pages": "npm run build && vite preview --base /Learning_App/",
-    "icons": "node scripts/generate-pwa-icons.mjs"
+    "icons": "node scripts/generate-pwa-icons.mjs",
+    "ebook:sync": "node scripts/crawl-ebook.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -19,6 +20,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "cheerio": "^1.2.0",
     "sharp": "^0.34.5",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
