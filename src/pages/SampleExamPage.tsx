@@ -82,15 +82,16 @@ export function SampleExamPage() {
     if (optionId === current.quiz.correctId) {
       setScore((s) => s + 1);
     }
+  };
 
-    setTimeout(() => {
-      if (index + 1 >= questions.length) {
-        setFinished(true);
-      } else {
-        setIndex((i) => i + 1);
-        setSelected(null);
-      }
-    }, 1400);
+  const handleNext = () => {
+    if (selected === null) return;
+    if (index + 1 >= questions.length) {
+      setFinished(true);
+    } else {
+      setIndex((i) => i + 1);
+      setSelected(null);
+    }
   };
 
   const handleRestart = () => {
@@ -231,14 +232,23 @@ export function SampleExamPage() {
           })}
         </ul>
         {selected !== null && (
-          <div
-            className={`quiz-feedback ${
-              selected === current.quiz.correctId ? "ok" : "err"
-            }`}
-          >
-            {selected === current.quiz.correctId ? "정답입니다! " : "아쉽습니다. "}
-            {current.quiz.explanation}
-          </div>
+          <>
+            <div
+              className={`quiz-feedback ${
+                selected === current.quiz.correctId ? "ok" : "err"
+              }`}
+            >
+              {selected === current.quiz.correctId ? "정답입니다! " : "아쉽습니다. "}
+              {current.quiz.explanation}
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary quiz-next-btn"
+              onClick={handleNext}
+            >
+              {index + 1 >= questions.length ? "결과 보기" : "다음 문제"}
+            </button>
+          </>
         )}
       </div>
     </main>

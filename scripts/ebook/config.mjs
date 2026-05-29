@@ -17,8 +17,14 @@ export const TSHERPA_TECH_HOME = {
       exportName: "unit1Youth",
       unitId: "unit1",
       pageStart: 10,
-      pageEnd: 48,
+      pageEnd: 39,
       lessonCount: 4,
+      lessonPages: [
+        { pageStart: 10, pageEnd: 19 },
+        { pageStart: 20, pageEnd: 29 },
+        { pageStart: 30, pageEnd: 31 },
+        { pageStart: 32, pageEnd: 39 },
+      ],
       lessonMeta: [
         { prefix: "u1l1", id: "physical-cognitive", title: "신체적·인지적 발달" },
         { prefix: "u1l2", id: "emotion-identity", title: "정서·사회적 발달과 자아 정체성" },
@@ -30,9 +36,14 @@ export const TSHERPA_TECH_HOME = {
       file: "unit2-lifestyle.ts",
       exportName: "unit2Lifestyle",
       unitId: "unit2",
-      pageStart: 49,
+      pageStart: 40,
       pageEnd: 86,
       lessonCount: 3,
+      lessonPages: [
+        { pageStart: 40, pageEnd: 55 },
+        { pageStart: 56, pageEnd: 71 },
+        { pageStart: 72, pageEnd: 86 },
+      ],
       lessonMeta: [
         { prefix: "u2l1", id: "nutrition", title: "영양과 건강한 식생활" },
         { prefix: "u2l2", id: "clothing", title: "옷차림과 바람직한 의생활" },
@@ -82,8 +93,12 @@ export const TSHERPA_TECH_HOME = {
       exportName: "unit6Energy",
       unitId: "unit6",
       pageStart: 212,
-      pageEnd: 258,
+      pageEnd: 243,
       lessonCount: 2,
+      lessonPages: [
+        { pageStart: 212, pageEnd: 227 },
+        { pageStart: 228, pageEnd: 235 },
+      ],
       lessonMeta: [
         { prefix: "u6l1", id: "eco-energy", title: "친환경 에너지의 이해와 활용" },
         { prefix: "u6l2", id: "transport", title: "수송 기술과 지속 가능한 이동" },

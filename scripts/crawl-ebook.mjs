@@ -17,7 +17,7 @@ import {
   extractKeywords,
   buildSummary,
 } from "./ebook/textExtract.mjs";
-import { generateQuizzesWithFallback } from "./ebook/quizGenerator.mjs";
+import { generateQuizzesWithFallback, isValidQuizTerm, isValidQuizText } from "./ebook/quizGenerator.mjs";
 import {
   readUnitMeta,
   writeUnitFile,
@@ -26,6 +26,17 @@ import {
 } from "./ebook/writeUnitFile.mjs";
 
 const CACHE_DIR = join(process.cwd(), "data", "ebook-cache");
+
+function isQuizBoldItem(b) {
+  return (
+    b.term &&
+    b.text &&
+    (b.type === "term-definition" || b.type === "glossary" || b.type === "section") &&
+    (b.score ?? 0) >= 7 &&
+    isValidQuizTerm(b.term) &&
+    isValidQuizText(b.text)
+  );
+}
 
 async function main() {
   const cfg = TSHERPA_TECH_HOME;
@@ -77,6 +88,15 @@ async function main() {
     const filePath = resolveUnitPath(cfg.outputDir, unitCfg.file);
     const { exportName, header } = readUnitMeta(filePath);
 
+    const unitPool = [];
+    for (let i = 0; i < unitCfg.lessonCount; i++) {
+      const key = `${unitCfg.unitId}-${i}`;
+      const data = extracted[key];
+      if (data) {
+        unitPool.push(...extractBoldHighlightsFromPages(data.pages, 40));
+      }
+    }
+
     const lessonContents = [];
     for (let i = 0; i < unitCfg.lessonCount; i++) {
       const key = `${unitCfg.unitId}-${i}`;
@@ -90,19 +110,51 @@ async function main() {
       }
 
       const boldItems = extractBoldHighlightsFromPages(data.pages, 24);
-      const points = boldItems.slice(0, 8).map((b) => `${b.term}: ${b.text}`);
+      const qualityItems = boldItems.filter(
+        (b) =>
+          b.term &&
+          b.text &&
+          (b.type === "term-definition" || b.type === "glossary") &&
+          (b.score ?? 0) >= 7
+      );
+      const points = qualityItems.slice(0, 8).map((b) => `${b.term}: ${b.text}`);
       const keywords = extractKeywords(
         data.text,
-        boldItems.map((b) => ({ text: b.text })),
+        qualityItems.map((b) => ({ text: b.text })),
         5
       );
       const summary = buildSummary(points, meta.title);
-      const quizzes = generateQuizzesWithFallback(
+      let quizzes = generateQuizzesWithFallback(
         boldItems,
         data.pages,
         6,
-        meta.title
+        meta.title,
+        unitPool
       );
+
+      if (quizzes.length === 0) {
+        const lessonPool = unitPool.filter(
+          (b) =>
+            b.sourcePage != null &&
+            b.sourcePage >= data.pageStart &&
+            b.sourcePage <= data.pageEnd
+        );
+        const validLesson = lessonPool.filter(isQuizBoldItem);
+        const validUnit = unitPool.filter(isQuizBoldItem);
+        quizzes = generateQuizzesWithFallback(
+          validLesson.length >= 2 ? validLesson : validUnit,
+          data.pages,
+          4,
+          meta.title,
+          validUnit
+        );
+      }
+
+      if (quizzes.length === 0) {
+        console.warn(`   ⚠ ${key}: 검증 통과 문항 없음 — placeholder 사용`);
+        lessonContents.push(fallbackLesson(meta.title));
+        continue;
+      }
 
       lessonContents.push({
         summary,

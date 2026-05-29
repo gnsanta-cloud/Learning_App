@@ -458,6 +458,11 @@ button {
   color: #991b1b;
 }
 
+.quiz-next-btn {
+  width: 100%;
+  margin-top: 1rem;
+}
+
 .quiz-progress {
   font-size: 0.8rem;
   color: var(--text-muted);

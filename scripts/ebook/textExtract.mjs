@@ -170,6 +170,20 @@ const GENERIC_TERMS = new Set([
   "그러나",
   "즉",
   "예를",
+  "카메라",
+  "레이더",
+  "모터",
+  "GPS",
+  "원리",
+  "위성",
+  "포장",
+  "하역",
+  "보관",
+  "충전기",
+  "라이다",
+  "특징",
+  "만드는",
+  "방법",
 ]);
 
 function guessTerm(sentence) {
@@ -270,21 +284,25 @@ export function buildSummary(points, title) {
 }
 
 const BOLD_NOISE_TERM =
-  /^(?:Link|활동|탐구|준비물|▲|그림|지식|마인드맵|Q&A|출발|문제\s*\d|지시|쑥쑥|반짝|톡톡|달걀|이해|알쏭|생각|준비|모둠|게임|접착|주사위)/;
+  /^(?:Link|활동|탐구|준비물|▲|그림|지식|마인드맵|Q&A|출발|문제\s*\d|지시|쑥쑥|반짝|톡톡|달걀|이해|알쏭|생각|준비|모둠|게임|접착|주사위|서술|사례|아이디어|놀이|주제|나사|적사|요약|배경|결과|확인|선정|스마트|편리|자유)/;
 const SPACED_HEADER = /^([가-힣]\s){4,}/;
-const DIALOGUE_LINE = /(?:[!?]|해\s*보자|할까|거야|일까|해보자|나타나\s*$)/;
+const DIALOGUE_LINE = /(?:[!?]|해\s*보자|할까|거야|일까|해보자|나타나\s*$|우주선|게임|반짝|캐릭터)/;
+const FRAGMENT_TERM = /(?:으면|에서|하기|하려면|좋으|없으|있으|대해|관하여|방법|만나기|상태가|조절|구성|선택|좋으면)$/;
 
 function isBoldTermLine(line) {
   const t = line.trim();
-  if (t.length < 2 || t.length > 22) return false;
+  if (t.length < 2 || t.length > 14) return false;
   if (/[.!?]/.test(t)) return false;
-  if (/^\d+\s/.test(t)) return false;
+  if (/^\d+단계/.test(t)) return false;
   if (BOLD_NOISE_TERM.test(t)) return false;
   if (SPACED_HEADER.test(t)) return false;
   if (DIALOGUE_LINE.test(t)) return false;
+  if (FRAGMENT_TERM.test(t.replace(/\s/g, ""))) return false;
   if (/Link|쪽$|활동|탐구|▲|그림|쪽\s*\d/.test(t)) return false;
-  if (/(?:이다|한다|된다|있는|으로|에서|이며|때문)/.test(t) && t.length > 10) return false;
+  if (/(?:은|는|이|가|을|를|과|와|에|에서|으로|에게|란|의|된|않은|되지)\s/.test(t)) return false;
+  if (/(?:이다|한다|된다|있는|때문)/.test(t)) return false;
   if (/(?:하기|하려면|이루려면)$/.test(t)) return false;
+  if (t.split(/\s+/).length > 2) return false;
   return /[가-힣]{2,}/.test(t);
 }
 
@@ -300,13 +318,41 @@ function isReadableTerm(term) {
 
 function isCompleteDefinition(text) {
   const t = text.trim();
-  if (t.length < 18) return false;
-  if (/[하여며고인]\.$/.test(t) && t.length < 50) return false;
-  if (/▲|그림|Link|활동/.test(t)) return false;
-  if (/[\u0006\u0007]/.test(t)) return false;
+  if (t.length < 22 || t.length > 120) return false;
+  if (/[하여며고인을를]\.$/.test(t) && t.length < 55) return false;
+  if (/▲|그림|Link|활동|설명하시오|서술형/.test(t)) return false;
+  if (/[\u0006\u0007\u200b]/.test(t)) return false;
+  if (DIALOGUE_LINE.test(t)) return false;
+  if (SPACED_HEADER.test(t)) return false;
   const parts = t.split(/[,·]/).map((p) => p.trim()).filter((p) => p.length > 4);
   if (parts.length >= 4 && t.length < 80) return false;
+  if (
+    !/(?:다|된다|한다|이다|있다|없다|요|음|것이다|현상|능력|과정|상태|태도|유형|방법|기술|원인|결과|특징|의미|작용|역할|형태|체계|대상|기관|시설|권리|민감성|장치|것|많다)[.!?]?$/.test(
+      t
+    )
+  ) {
+    return false;
+  }
   return true;
+}
+
+function mergeDefinitionLines(lines, startIndex) {
+  let text = lines[startIndex].trim();
+  let i = startIndex;
+  if (
+    text.length < 70 &&
+    i + 1 < lines.length &&
+    !/[.!?]$/.test(text) &&
+    !isBoldTermLine(lines[i + 1]) &&
+    !/^아하!\s*용어/.test(lines[i + 1])
+  ) {
+    const next = lines[i + 1].trim();
+    if (next.length <= 35 && /(?:다|이다|한다|있다|없다|유형|현상|능력)[.!?]?$/.test(next)) {
+      i++;
+      text += " " + next;
+    }
+  }
+  return { text: text.replace(/\s+/g, " ").trim(), endIndex: i };
 }
 
 function isBoldDefinitionLine(line) {
@@ -321,7 +367,7 @@ function isBoldDefinitionLine(line) {
 }
 
 function formatBoldText(text, term) {
-  let p = text.replace(/\s+/g, " ").trim();
+  let p = text.replace(/[\u0000-\u001f\u0007\u200b]/g, "").replace(/\s+/g, " ").trim();
   if (!/[.!?]$/.test(p)) p += ".";
   return p.length <= 130 ? p : `${p.slice(0, 127)}…`;
 }
@@ -330,8 +376,7 @@ function scoreBoldItem(item) {
   let score = 0;
   if (item.type === "term-definition") score += 6;
   if (item.type === "glossary") score += 5;
-  if (item.type === "section") score += 4;
-  if (item.type === "definition") score += 3;
+  if (item.type === "section") score += 5;
   if (item.text.length >= 25 && item.text.length <= 100) score += 2;
   if (/[다님][.!?]?$/.test(item.text)) score += 1;
   if (item.term.length >= 2 && item.term.length <= 12) score += 1;
@@ -342,10 +387,13 @@ function extractTermDefinitionPairs(lines, page) {
   const items = [];
   for (let i = 0; i < lines.length - 1; i++) {
     const term = lines[i];
-    const def = lines[i + 1];
-    if (!isBoldTermLine(term) || !isBoldDefinitionLine(def)) continue;
+    if (!isBoldTermLine(term)) continue;
     if (/^(?:남자|여자|공통)(?:된)?\s*변화$/.test(term.replace(/\s+/g, ""))) continue;
-    const text = formatBoldText(def, term);
+
+    const { text: defRaw, endIndex } = mergeDefinitionLines(lines, i + 1);
+    if (!isBoldDefinitionLine(defRaw)) continue;
+
+    const text = formatBoldText(defRaw, term);
     items.push({
       term: term.replace(/\s+/g, " ").trim(),
       text,
@@ -353,65 +401,129 @@ function extractTermDefinitionPairs(lines, page) {
       excerpt: makeExcerpt(`${term}\n${text}`),
       type: "term-definition",
     });
+    i = endIndex;
   }
   return items;
+}
+
+function pushGlossary(items, term, def, page) {
+  if (GENERIC_TERMS.has(term.replace(/\s/g, ""))) return;
+  const text = formatBoldText(def, term);
+  if (!isCompleteDefinition(text)) return;
+  items.push({
+    term,
+    text,
+    sourcePage: page,
+    excerpt: makeExcerpt(`${term} ${text}`),
+    type: "glossary",
+  });
 }
 
 function extractGlossaryBlocks(lines, page) {
   const items = [];
   for (let i = 0; i < lines.length; i++) {
-    if (/아하!\s*용어/.test(lines[i])) {
-      const line = lines[i + 1];
-      if (!line) continue;
-      const m = line.match(/^([가-힣]{2,10})\s+(.{10,})/);
-      if (!m || GENERIC_TERMS.has(m[1]) || !isReadableTerm(m[1])) continue;
-      const text = formatBoldText(m[2], m[1]);
-      if (!isCompleteDefinition(text)) continue;
-      items.push({
-        term: m[1],
-        text,
-        sourcePage: page,
-        excerpt: makeExcerpt(`${m[1]} ${text}`),
-        type: "glossary",
-      });
+    const sameLine = lines[i].match(/아하!\s*용어\s*([가-힣·\s]{2,12})\s+(.{12,})/);
+    if (sameLine) {
+      pushGlossary(items, sameLine[1].replace(/\s+/g, " ").trim(), sameLine[2], page);
       continue;
     }
 
-    const inline = lines[i].match(/^([가-힣]{2,8})\s+(.{15,})$/);
-    if (
-      inline &&
-      isReadableTerm(inline[1]) &&
-      !GENERIC_TERMS.has(inline[1]) &&
-      isCompleteDefinition(inline[2]) &&
-      !isBoldTermLine(inline[1])
-    ) {
-      const text = formatBoldText(inline[2], inline[1]);
-      items.push({
-        term: inline[1],
-        text,
-        sourcePage: page,
-        excerpt: makeExcerpt(`${inline[1]} ${text}`),
-        type: "glossary",
-      });
+    if (!/아하!\s*용어/.test(lines[i])) continue;
+    const line = lines[i + 1];
+    if (!line) continue;
+    const m = line.match(/^([가-힣·\s]{2,12})\s+(.{12,})/);
+    if (m) {
+      const rawTerm = m[1].replace(/\s+/g, " ").trim();
+      const term = /^(?:잘못된|올바른|건강한)/.test(rawTerm)
+        ? rawTerm
+        : rawTerm.split(/\s+/)[0];
+      pushGlossary(items, term, m[2], page);
     }
   }
   return items;
 }
 
-function extractSectionHeadings(lines, page) {
+function normalizeLine(text) {
+  return text.replace(/[\u0000-\u001f\u0007\u200b]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function extractRaneunDefinitions(text, page) {
+  const items = [];
+  const lines = text.split(/\r?\n/);
+  const re = /([가-힣·\s]{2,14}?)이란\s+([^.!?]{20,110}[.!?])/;
+
+  for (const rawLine of lines) {
+    const line = normalizeLine(rawLine);
+    const m = line.match(re);
+    if (!m) continue;
+    const term = m[1].replace(/\s+/g, " ").trim();
+    if (!isReadableTerm(term) || GENERIC_TERMS.has(term.replace(/\s/g, ""))) continue;
+    const defText = m[2].trim();
+    if (!isCompleteDefinition(defText)) continue;
+    items.push({
+      term,
+      text: formatBoldText(defText, term),
+      sourcePage: page,
+      excerpt: makeExcerpt(`${term}란 ${defText}`),
+      type: "term-definition",
+    });
+  }
+  return items;
+}
+
+function extractTopicHeaderLines(lines, page) {
   const items = [];
   for (let i = 0; i < lines.length - 1; i++) {
-    const m = lines[i].match(/^(\d+)\s+([가-힣·\s]{4,28})$/);
-    if (!m || SPACED_HEADER.test(m[2])) continue;
-    const body = lines[i + 1];
-    if (!body || body.length < 35) continue;
+    const line = lines[i].trim();
+    if (!/^(?:잘못된|올바른|건강한)\s/.test(line)) continue;
+    if (line.length < 4 || line.length > 18) continue;
+    const term = line.replace(/\s+/g, " ").trim();
+    if (!isReadableTerm(term)) continue;
+
+    const { text: body, endIndex } = mergeDefinitionLines(lines, i + 1);
     const firstSent = body
       .split(/(?<=[.!?])\s+/)
       .map((s) => s.trim())
-      .find((s) => s.length >= 25 && isCompleteDefinition(s));
+      .find((s) => s.length >= 22 && isCompleteDefinition(s));
     if (!firstSent) continue;
-    const term = m[2].replace(/\s+/g, " ").trim();
-    if (!isReadableTerm(term)) continue;
+
+    items.push({
+      term,
+      text: formatBoldText(firstSent, term),
+      sourcePage: page,
+      excerpt: makeExcerpt(`${term}\n${firstSent}`),
+      type: "glossary",
+    });
+    i = endIndex;
+  }
+  return items;
+}
+
+function shortenSectionTerm(term) {
+  const t = term.replace(/\s+/g, " ").trim();
+  if (t.length <= 18 && t.split(/\s+/).length <= 4) return t;
+  const cut = t.split(/\s+(?:과|와|및)\s+/)[0];
+  if (cut.length >= 4 && cut.length <= 18) return cut;
+  return t.split(/\s+/).slice(0, 3).join(" ").slice(0, 18);
+}
+
+function extractNumberedSections(lines, page) {
+  const items = [];
+  for (let i = 0; i < lines.length - 1; i++) {
+    const m = lines[i].match(/^(\d+)\s+([가-힣·\s]{4,36})$/);
+    if (!m || SPACED_HEADER.test(m[2])) continue;
+    const term = shortenSectionTerm(m[2]);
+    if (term.length < 4 || term.length > 18 || SPACED_HEADER.test(term)) continue;
+    if (FRAGMENT_TERM.test(term.replace(/\s/g, ""))) continue;
+
+    const { text: body, endIndex } = mergeDefinitionLines(lines, i + 1);
+    const firstSent = body
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .find((s) => s.length >= 22 && isCompleteDefinition(s));
+    if (!firstSent) continue;
+    if (!firstSent.includes(term.replace(/\s/g, "").slice(0, 3)) && term.length > 5) continue;
+
     const text = formatBoldText(firstSent, term);
     items.push({
       term,
@@ -420,34 +532,24 @@ function extractSectionHeadings(lines, page) {
       excerpt: makeExcerpt(`${m[1]} ${term}\n${text}`),
       type: "section",
     });
+    i = endIndex;
   }
   return items;
 }
 
-function extractDefinitionHighlights(text, page) {
-  return extractDefinitions(text)
-    .filter((d) => d.term && d.definition.length >= 15 && isReadableTerm(d.term))
-    .filter((d) => isCompleteDefinition(d.definition) && !/[가-힣]{8,}[은는이가]/.test(d.term))
-    .map((d) => ({
-      term: d.term.replace(/\s+/g, "").slice(0, 14),
-      text: formatBoldText(d.definition.replace(/은\(는\)|이\(가\)/g, (m) => m[0]), d.term),
-      sourcePage: page,
-      excerpt: makeExcerpt(`${d.term} ${d.definition}`),
-      type: "definition",
-    }));
-}
-
-/** eBook 굵은 글씨(용어·소제목·아하! 용어) 블록 추출 */
+/** eBook 굵은 글씨(용어·아하! 용어) 블록 추출 */
 export function extractBoldHighlightsFromPages(pages, max = 24) {
   const all = [];
 
   for (const { page, text, raw } of pages) {
     const lines = splitRawLines(raw || text);
+    const pageText = raw || text;
     all.push(
       ...extractTermDefinitionPairs(lines, page),
       ...extractGlossaryBlocks(lines, page),
-      ...extractSectionHeadings(lines, page),
-      ...extractDefinitionHighlights(text, page)
+      ...extractNumberedSections(lines, page),
+      ...extractTopicHeaderLines(lines, page),
+      ...extractRaneunDefinitions(pageText, page)
     );
   }
 

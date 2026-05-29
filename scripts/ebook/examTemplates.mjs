@@ -51,9 +51,26 @@ export function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function cleanOption(text) {
-  return text
+/** eBook OCR: 음절 사이 잘못 끊긴 공백 복원 */
+export function fixOcrSpaces(text) {
+  let t = text.replace(/[\u0000-\u001f\u0007\u200b]/g, "").replace(/\s+/g, " ").trim();
+  const spaceRatio = (t.match(/\s/g) || []).length / Math.max(t.length, 1);
+  if (spaceRatio > 0.07) return t;
+
+  for (let i = 0; i < 4; i++) {
+    t = t.replace(/([가-힣])\s+([가-힣])/g, "$1$2");
+  }
+  return t
+    .replace(
+      /([가-힣]{2,})(을|를|은|는|이|가|과|와|에|의|도|만|에서|으로|에게|하며|하고|하거나|게|이다|한다|있다|없다|때|면)/g,
+      "$1 $2"
+    )
     .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function cleanOption(text) {
+  return fixOcrSpaces(text)
     .replace(/([가-힣])수([가-힣])/g, "$1수 $2")
     .replace(/([가-힣])에([가-힣])/g, "$1에 $2")
     .replace(/([가-힣])를([가-힣])/g, "$1를 $2")

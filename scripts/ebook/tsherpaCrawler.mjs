@@ -110,6 +110,20 @@ export function assignPageRangesFromUnits(unitConfigs) {
   const result = [];
 
   for (const cfg of unitConfigs) {
+    if (cfg.lessonPages?.length) {
+      for (let li = 0; li < cfg.lessonPages.length; li++) {
+        const range = cfg.lessonPages[li];
+        result.push({
+          unitId: cfg.unitId,
+          lessonIndex: li,
+          pageStart: range.pageStart,
+          pageEnd: range.pageEnd,
+          sectionNames: [],
+        });
+      }
+      continue;
+    }
+
     const totalPages = cfg.pageEnd - cfg.pageStart + 1;
     const pagesPerLesson = Math.ceil(totalPages / cfg.lessonCount);
 
