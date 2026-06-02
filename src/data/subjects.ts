@@ -7,9 +7,9 @@ import { seomgangTechSubject } from "./seomgangTech/index";
 import { techHomeSubject } from "./techHome/index";
 
 export const subjects: Subject[] = [
+  seomgangTechSubject,
   techHomeSubject,
   ethicsSubject,
-  seomgangTechSubject,
 ];
 
 export function getSubject(id: string): Subject | undefined {
