@@ -1,4 +1,5 @@
 import type { Quiz, Section, Unit } from "../types";
+import { scopedQuizId } from "./quizId";
 
 export type GeminiQuestion = {
   id: string;
@@ -31,9 +32,9 @@ export type GeminiUnitJson = {
   questions: GeminiQuestion[];
 };
 
-export function toQuiz(q: GeminiQuestion): Quiz {
+export function toQuiz(q: GeminiQuestion, subjectId: string): Quiz {
   return {
-    id: q.id,
+    id: scopedQuizId(subjectId, q.id),
     question: q.question,
     options: q.options,
     correctId: q.correctId,
@@ -41,7 +42,7 @@ export function toQuiz(q: GeminiQuestion): Quiz {
   };
 }
 
-export function geminiJsonToUnit(raw: GeminiUnitJson): Unit {
+export function geminiJsonToUnit(raw: GeminiUnitJson, subjectId: string): Unit {
   const sections: Section[] = raw.sections.map((s) => ({
     id: s.id,
     title: s.title,
@@ -59,7 +60,7 @@ export function geminiJsonToUnit(raw: GeminiUnitJson): Unit {
     studyGuide: raw.studyGuide,
     goals: raw.goals,
     sections,
-    unitQuizzes: raw.questions.map(toQuiz),
+    unitQuizzes: raw.questions.map((q) => toQuiz(q, subjectId)),
     lessons: [],
   };
 }

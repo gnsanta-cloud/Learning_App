@@ -295,6 +295,16 @@ button {
   font-size: 0.95rem;
 }
 
+.worksheet-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
 .points-list {
   margin: 0 0 1rem;
   background: var(--surface);

@@ -9,6 +9,8 @@ import unit6 from "../../../data/tech-home/unit6.json";
 
 const RAW_UNITS: GeminiUnitJson[] = [unit1, unit2, unit3, unit4, unit5, unit6];
 
-export const geminiTechHomeUnits: Unit[] = RAW_UNITS.map(geminiJsonToUnit);
+export const geminiTechHomeUnits: Unit[] = RAW_UNITS.map((u) =>
+  geminiJsonToUnit(u, "tech-home")
+);
 
 export { getUnitQuizzes } from "../../lib/geminiContent";

@@ -1,9 +1,19 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { QuizSession } from "../components/QuizSession";
-import type { Quiz } from "../types";
+import type { Quiz, Subject } from "../types";
 import { getAllQuizzes, getSubject, subjects } from "../data/subjects";
 import { useWrongAnswers } from "../hooks/useWrongAnswers";
+import { parseScopedQuizId } from "../lib/quizId";
+
+function subjectsFromQuizzes(quizzes: Quiz[]): Subject[] {
+  const ids = new Set<string>();
+  for (const q of quizzes) {
+    const parsed = parseScopedQuizId(q.id);
+    if (parsed) ids.add(parsed.subjectId);
+  }
+  return subjects.filter((s) => ids.has(s.id));
+}
 
 export function ReviewPage() {
   const { wrongIds, clearAll } = useWrongAnswers();
@@ -22,7 +32,18 @@ export function ReviewPage() {
       .filter((q): q is Quiz => q !== undefined);
   }, [wrongIds]);
 
-  const techHome = getSubject("tech-home");
+  const subjectsInWrong = useMemo(
+    () => subjectsFromQuizzes(wrongQuizzes),
+    [wrongQuizzes]
+  );
+
+  const theme =
+    subjectsInWrong.length === 1
+      ? subjectsInWrong[0]
+      : {
+          color: "#374151",
+          accent: "#f3f4f6",
+        };
 
   if (wrongQuizzes.length === 0) {
     return (
@@ -34,22 +55,34 @@ export function ReviewPage() {
           <h1>오답 노트</h1>
           <p>틀린 문항이 없습니다. 퀴즈를 풀어 보세요!</p>
         </header>
-        {techHome && (
-          <Link to={`/subject/${techHome.id}`} className="btn btn-primary">
-            기술·가정 학습하기
-          </Link>
-        )}
+        <div className="subject-grid" style={{ marginTop: "1rem" }}>
+          {subjects.map((subject) => (
+            <Link
+              key={subject.id}
+              to={`/subject/${subject.id}`}
+              className="btn btn-primary btn-block"
+              style={
+                {
+                  "--subject-color": subject.color,
+                  marginBottom: "0.5rem",
+                } as React.CSSProperties
+              }
+            >
+              {subject.name} 학습하기
+            </Link>
+          ))}
+        </div>
       </main>
     );
   }
 
-  if (!techHome) {
-    return (
-      <main className="page">
-        <p>과목 데이터를 불러올 수 없습니다.</p>
-      </main>
-    );
-  }
+  const doneLinks = [
+    { to: "/settings", label: "설정으로" },
+    ...subjectsInWrong.map((s) => ({
+      to: `/subject/${s.id}`,
+      label: `${s.shortName}으로`,
+    })),
+  ];
 
   return (
     <>
@@ -58,7 +91,11 @@ export function ReviewPage() {
           ← 설정
         </Link>
         <p className="subject-meta">
-          오답 {wrongQuizzes.length}문항 · 맞히면 노트에서 제거됩니다
+          오답 {wrongQuizzes.length}문항
+          {subjectsInWrong.length > 1
+            ? ` · ${subjectsInWrong.map((s) => s.shortName).join(" · ")}`
+            : ""}{" "}
+          · 맞히면 노트에서 제거됩니다
         </p>
         <button
           type="button"
@@ -73,15 +110,17 @@ export function ReviewPage() {
       </div>
       <QuizSession
         quizzes={wrongQuizzes}
-        subjectColor={techHome.color}
-        subjectAccent={techHome.accent}
+        subjectColor={theme.color}
+        subjectAccent={theme.accent}
         backLabel="설정"
         backTo="/settings"
         badge="오답 노트"
-        doneLinks={[
-          { to: "/settings", label: "설정으로" },
-          { to: `/subject/${techHome.id}`, label: "과목으로" },
-        ]}
+        doneLinks={doneLinks}
+        questionMeta={(quiz) => {
+          const parsed = parseScopedQuizId(quiz.id);
+          if (!parsed) return undefined;
+          return getSubject(parsed.subjectId)?.shortName;
+        }}
       />
     </>
   );

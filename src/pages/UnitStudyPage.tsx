@@ -39,6 +39,10 @@ export function UnitStudyPage() {
   const ebookUrl = getUnitEbookUrl(subject, unit);
   const usesSections = unitUsesSections(unit);
   const unitQuizDone = isComplete(getUnitQuizKey(subject.id, unit.id));
+  const base = import.meta.env.BASE_URL;
+  const worksheetSrc = unit.worksheetImage
+    ? `${base}${unit.worksheetImage}`.replace(/\/+/g, "/")
+    : undefined;
 
   return (
     <main
@@ -90,6 +94,18 @@ export function UnitStudyPage() {
         <section className="study-section">
           <h2 className="section-title">학습 방법</h2>
           <div className="summary-box">{unit.studyGuide}</div>
+        </section>
+      )}
+
+      {worksheetSrc && (
+        <section className="study-section">
+          <h2 className="section-title">활동지 원본</h2>
+          <img
+            src={worksheetSrc}
+            alt={`${unit.title} 활동지`}
+            className="worksheet-image"
+            loading="lazy"
+          />
         </section>
       )}
 

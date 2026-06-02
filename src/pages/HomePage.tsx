@@ -16,7 +16,7 @@ export function HomePage() {
     <main className="page">
       <header className="page-header">
         <h1>학습 홈</h1>
-        <p>기술·가정(천재) · 도덕(비상) — 2022 개정</p>
+        <p>기술·가정 · 도덕 · 섬강중 기술 활동지</p>
       </header>
 
       <StreakCard />

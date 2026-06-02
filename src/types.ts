@@ -47,6 +47,8 @@ export type Unit = {
   textbookPages?: string;
   /** 단원별 e북 직접 링크 (없으면 과목 e북 사용) */
   ebookUrl?: string;
+  /** 활동지·교사 자료 참고 이미지 (public 경로) */
+  worksheetImage?: string;
   /** 단원 학습 안내 */
   studyGuide?: string;
   /** 단원 학습 목표 */

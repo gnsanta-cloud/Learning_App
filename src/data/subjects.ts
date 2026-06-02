@@ -3,9 +3,14 @@ import { getUnitQuizzes as getUnitQuizzesFromUnit } from "../lib/geminiContent";
 
 export const getUnitQuizzes = getUnitQuizzesFromUnit;
 import { ethicsSubject } from "./ethics/index";
+import { seomgangTechSubject } from "./seomgangTech/index";
 import { techHomeSubject } from "./techHome/index";
 
-export const subjects: Subject[] = [techHomeSubject, ethicsSubject];
+export const subjects: Subject[] = [
+  techHomeSubject,
+  ethicsSubject,
+  seomgangTechSubject,
+];
 
 export function getSubject(id: string): Subject | undefined {
   return subjects.find((s) => s.id === id);

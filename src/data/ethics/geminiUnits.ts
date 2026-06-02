@@ -8,4 +8,6 @@ import unit4 from "../../../data/ethics/unit4.json";
 
 const RAW_UNITS: GeminiUnitJson[] = [unit1, unit2, unit3, unit4];
 
-export const geminiEthicsUnits: Unit[] = RAW_UNITS.map(geminiJsonToUnit);
+export const geminiEthicsUnits: Unit[] = RAW_UNITS.map((u) =>
+  geminiJsonToUnit(u, "ethics")
+);
