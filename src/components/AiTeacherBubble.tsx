@@ -23,7 +23,7 @@ export function AiTeacherBubble({
 
   return (
     <div className="ai-teacher-bubble ai-teacher-bubble--teacher">
-      <AiTeacherAvatar size="sm" speaking={speaking} />
+      <AiTeacherAvatar size="md" speaking={speaking} />
       <div className="ai-teacher-bubble__body">
         <span className="ai-teacher-bubble__name">{AI_TEACHER.name}</span>
         <div className="ai-teacher-bubble__content">{children}</div>

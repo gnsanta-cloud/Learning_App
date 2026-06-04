@@ -1,7 +1,7 @@
 import { AI_TEACHER } from "../config/aiTeacher";
 
 type Props = {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   speaking?: boolean;
 };
 

@@ -22,7 +22,7 @@ export function AiTeacherHubPage() {
           } as React.CSSProperties
         }
       >
-        <AiTeacherAvatar size="lg" speaking />
+        <AiTeacherAvatar size="xl" speaking />
         <div>
           <h1>AI 선생님 학습</h1>
           <p className="ai-teacher-hub__tagline">{AI_TEACHER.tagline}</p>

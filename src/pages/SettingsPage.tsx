@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useProgress } from "../hooks/useProgress";
 import { useStreak } from "../hooks/useStreak";
 import { useTheme, type ThemeMode } from "../hooks/useTheme";
 import { useWrongAnswers } from "../hooks/useWrongAnswers";
+import { useGeminiApiKey } from "../hooks/useGeminiApiKey";
 import { writeJson } from "../lib/storage";
 import { siteConfig } from "../config/site";
 
@@ -13,6 +15,12 @@ export function SettingsPage() {
   const { current, longest, todayDone } = useStreak();
   const { mode, setMode } = useTheme();
   const { wrongIds, clearAll: clearWrongAll } = useWrongAnswers();
+  const { apiKey, setApiKey, hasApiKey } = useGeminiApiKey();
+  const [keyInput, setKeyInput] = useState(apiKey);
+
+  useEffect(() => {
+    setKeyInput(apiKey);
+  }, [apiKey]);
 
   const resetExamAll = () => {
     writeJson(EXAM_KEY, {});
@@ -73,6 +81,55 @@ export function SettingsPage() {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="settings-block">
+        <h2 className="section-title">AI 선생님 (Gemini API)</h2>
+        <p className="settings-hint">
+          대화형 질문·답변에 Google AI Studio API 키가 필요합니다. 키는 이
+          기기 브라우저에만 저장되며 GitHub에 올라가지 않습니다.
+        </p>
+        <label className="settings-label" htmlFor="gemini-key">
+          API 키
+        </label>
+        <input
+          id="gemini-key"
+          type="password"
+          className="settings-input"
+          placeholder="AIza…"
+          value={keyInput}
+          onChange={(e) => setKeyInput(e.target.value)}
+          autoComplete="off"
+        />
+        <div className="btn-row" style={{ marginTop: "0.5rem" }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setApiKey(keyInput)}
+          >
+            키 저장
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              setKeyInput("");
+              setApiKey("");
+            }}
+          >
+            키 삭제
+          </button>
+        </div>
+        <p className="settings-hint" style={{ marginTop: "0.5rem" }}>
+          상태: {hasApiKey ? "✓ 저장됨" : "미설정"}{" "}
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            API 키 발급 ↗
+          </a>
+        </p>
       </section>
 
       <section className="settings-block">
