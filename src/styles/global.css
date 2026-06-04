@@ -1588,24 +1588,27 @@ button {
 
 .ai-chat__compose {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.75rem;
   border-top: 1px solid var(--border);
   background: var(--surface);
-  align-items: flex-end;
 }
 
 .ai-chat__input {
-  flex: 1;
-  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.75rem 0.85rem;
   font: inherit;
   font-size: 0.9rem;
+  line-height: 1.5;
   background: var(--bg);
   color: var(--text);
-  min-height: 2.75rem;
+  min-height: 5.5rem;
+  max-height: 10rem;
 }
 
 .ai-chat__input:focus {
@@ -1614,8 +1617,10 @@ button {
 }
 
 .ai-chat__send {
-  flex-shrink: 0;
-  min-width: 4rem;
+  width: 100%;
+  min-height: 2.75rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .ai-teacher-step-actions {

@@ -170,8 +170,8 @@ export function AiTeacherChat({
       >
         <textarea
           className="ai-chat__input"
-          rows={2}
-          placeholder={`${AI_TEACHER.name}에게 질문해 보세요… (Enter 전송)`}
+          rows={4}
+          placeholder={`${AI_TEACHER.name}에게 질문해 보세요… (Enter 전송, Shift+Enter 줄바꿈)`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
