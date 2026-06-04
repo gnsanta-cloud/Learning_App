@@ -10,8 +10,6 @@ import { UnitQuizPage } from "./pages/UnitQuizPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { SampleExamPage } from "./pages/SampleExamPage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { AiTeacherHubPage } from "./pages/AiTeacherHubPage";
-import { AiTeacherLearnPage } from "./pages/AiTeacherLearnPage";
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || undefined;
 
@@ -23,11 +21,6 @@ export function App() {
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="review" element={<ReviewPage />} />
-          <Route path="ai-teacher" element={<AiTeacherHubPage />} />
-          <Route
-            path="ai-teacher/:subjectId/:unitId"
-            element={<AiTeacherLearnPage />}
-          />
           <Route path="subject/:subjectId" element={<SubjectPage />} />
           <Route
             path="subject/:subjectId/sample-exam"
