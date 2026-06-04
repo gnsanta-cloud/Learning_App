@@ -10,6 +10,8 @@ export type ChatMessage = {
   role: "teacher" | "student";
   text: string;
   loading?: boolean;
+  /** Gemini API가 생성한 선생님 답변만 대화 기록에 포함 */
+  gemini?: boolean;
 };
 
 type Props = {
@@ -56,13 +58,19 @@ export function AiTeacherChat({
     });
   }, [messages, sending]);
 
-  const toGeminiHistory = (msgs: ChatMessage[]): ChatTurn[] =>
-    msgs
-      .filter((m) => !m.loading && m.text.trim())
-      .map((m) => ({
-        role: m.role === "student" ? "user" : "model",
-        text: m.text,
-      }));
+  /** 수업 안내 말풍선은 제외 — 학생 질문 ↔ Gemini 답변만 전달 */
+  const toGeminiHistory = (msgs: ChatMessage[]): ChatTurn[] => {
+    const turns: ChatTurn[] = [];
+    for (const m of msgs) {
+      if (m.loading || !m.text.trim()) continue;
+      if (m.role === "student") {
+        turns.push({ role: "user", text: m.text });
+      } else if (m.gemini) {
+        turns.push({ role: "model", text: m.text });
+      }
+    }
+    return turns;
+  };
 
   const handleSend = async () => {
     const text = input.trim();
@@ -92,10 +100,7 @@ export function AiTeacherChat({
     setSending(true);
 
     try {
-      const history: ChatTurn[] = [
-        ...toGeminiHistory(messages),
-        { role: "user", text },
-      ];
+      const history = toGeminiHistory(messages);
       const reply = await askAiTeacherChat({
         apiKey,
         unitContext,
@@ -107,7 +112,12 @@ export function AiTeacherChat({
       setMessages((prev) =>
         prev
           .filter((m) => m.id !== loadingId)
-          .concat({ id: newChatId(), role: "teacher", text: reply })
+          .concat({
+            id: newChatId(),
+            role: "teacher",
+            text: reply,
+            gemini: true,
+          })
       );
     } catch (err) {
       setMessages((prev) =>
