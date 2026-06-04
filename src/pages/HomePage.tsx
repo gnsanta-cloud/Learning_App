@@ -21,6 +21,22 @@ export function HomePage() {
 
       <StreakCard />
 
+      <Link to="/ai-teacher" className="ai-teacher-home-card">
+        <div className="ai-teacher-home-card__avatar" aria-hidden>
+          👩‍🏫
+        </div>
+        <div className="ai-teacher-home-card__body">
+          <h2>AI 선생님 학습</h2>
+          <p>
+            하루 선생님이 단원을 골라 핵심 설명 · 확인 문제까지 함께 진행해
+            줘요
+          </p>
+        </div>
+        <span className="ai-teacher-home-card__arrow" aria-hidden>
+          →
+        </span>
+      </Link>
+
       <div className="install-banner">
         <strong>📲 앱처럼 쓰기</strong>
         브라우저 메뉴에서 「홈 화면에 추가」 또는 「앱 설치」를 선택하면
